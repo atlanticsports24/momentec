@@ -19,11 +19,9 @@ Route::get('/search', [SearchController::class, 'index'])->name('search');
 use App\Http\Controllers\Store\CartController;
 use App\Http\Controllers\Store\CheckoutController;
 use App\Http\Controllers\Store\ShopController;
-use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('store.shop');
-});
+
+
 
 Route::prefix('shop')->name('store.')->group(function () {
     Route::get('/', [ShopController::class, 'index'])->name('shop');

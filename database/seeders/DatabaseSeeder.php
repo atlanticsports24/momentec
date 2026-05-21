@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(StoreSeeder::class);
+
         Artisan::call('shield:generate', [
             '--all' => true,
             '--minimal' => true,

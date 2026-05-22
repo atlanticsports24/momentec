@@ -14,5 +14,23 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            return response()->view('pages.404', [], 404);
+        });
+
+        $exceptions->render(function (\Throwable $e, $request) {
+            if ($request->expectsJson() || config('app.debug')) {
+                return null;
+            }
+
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                return null;
+            }
+
+            return response()->view('pages.500', [], 500);
+        });
     })->create();

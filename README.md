@@ -17,7 +17,11 @@ php artisan key:generate
 php artisan migrate
 php artisan db:seed
 php artisan storage:link
+npm install
+npm run build
 ```
+
+For frontend development with hot reload: `npm run dev` (keep it running alongside `php artisan serve`).
 
 Admin: **http://127.0.0.1:8000/admin** — `admin@momentec.local` / `password` (super_admin).
 

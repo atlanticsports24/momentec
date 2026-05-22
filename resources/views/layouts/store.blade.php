@@ -16,7 +16,7 @@
             <a href="{{ url('/admin') }}" class="text-gray-500 hover:text-blue-600">Admin</a>
         </nav>
     </div>
-</header>
+</header> 
 <main class="max-w-6xl mx-auto px-4 py-8">
     @if (session('success'))
         <div class="mb-4 rounded-lg bg-green-50 text-green-800 px-4 py-3">{{ session('success') }}</div>

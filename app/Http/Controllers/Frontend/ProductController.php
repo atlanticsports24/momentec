@@ -19,11 +19,30 @@ class ProductController extends Controller
 
         $catalog = $this->catalogViewData($request);
 
+        $activeFilters = array_filter([
+            'brand' => $request->brand,
+            'category' => $request->category,
+            'color' => $request->color,
+            'size' => $request->size,
+            'min_price' => $request->filled('min_price') && (int) $request->min_price > $catalog['priceFloor']
+                ? $request->min_price
+                : null,
+            'max_price' => $request->filled('max_price') && (int) $request->max_price < $catalog['priceCeiling']
+                ? $request->max_price
+                : null,
+        ], fn ($value) => filled($value));
+
         $products = $query->paginate(24)->appends($catalog['catalogQuery']);
 
         return view('pages.product-listing', [
             'products' => $products,
             ...$catalog,
+            'activeFilters' => $activeFilters,
+            'activeFilterTags' => $this->activeFilterTagsFromFilters(
+                $activeFilters,
+                $catalog['allBrands'],
+                $catalog['allCategories'],
+            ),
         ]);
     }
 

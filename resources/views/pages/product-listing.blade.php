@@ -228,17 +228,11 @@
 
 @section('content')
 @php
-    $removeFilterUrl = function (string $key, $valueToRemove = null) use ($catalogQuery): string {
+    $activeFilterTags = $activeFilterTags ?? [];
+    $activeFilters = $activeFilters ?? [];
+    $removeFilterUrl = function (string $key) use ($catalogQuery): string {
         $query = $catalogQuery;
-        if (in_array($key, ['brands', 'categories', 'colors', 'sizes'], true)) {
-            $current = array_values(array_filter((array) ($query[$key] ?? [])));
-            $query[$key] = array_values(array_filter($current, fn ($v) => $v !== $valueToRemove));
-            if ($query[$key] === []) {
-                unset($query[$key]);
-            }
-        } else {
-            unset($query[$key]);
-        }
+        unset($query[$key]);
 
         return route('products.index').(empty($query) ? '' : '?'.http_build_query($query));
     };
@@ -273,8 +267,8 @@
         <h1 style="font-size:1.75rem;font-weight:800;color:#111827;margin:0;">All Products</h1>
         <button type="button" class="listing-mobile-filter-btn" @click="mobileFiltersOpen = true; $nextTick(() => syncFilterPanels())">
             Filter
-            @if($activeFilterTags->count())
-                <span style="background:#4f46e5;color:#fff;border-radius:999px;padding:2px 8px;font-size:11px;">{{ $activeFilterTags->count() }}</span>
+            @if(count($activeFilterTags))
+                <span style="background:#4f46e5;color:#fff;border-radius:999px;padding:2px 8px;font-size:11px;">{{ count($activeFilterTags) }}</span>
             @endif
         </button>
     </div>
@@ -286,18 +280,6 @@
         @change="submitFilters()"
         @submit="syncFilterPanels()"
     >
-        @if($activeFilterTags->isNotEmpty())
-            <div class="listing-active-filters">
-                <span>Active filters:</span>
-                @foreach($activeFilterTags as $filter)
-                    <a href="{{ $removeFilterUrl($filter['key'], $filter['value']) }}" class="listing-filter-tag">
-                        {{ $filter['label'] }} &times;
-                    </a>
-                @endforeach
-                <a href="{{ route('products.index') }}" class="listing-clear-all">Clear all</a>
-            </div>
-        @endif
-
         <div class="listing-layout">
             <aside class="filter-sidebar filter-sidebar-desktop">
                 <div x-ref="desktopFilters">
@@ -315,6 +297,18 @@
             </aside>
 
             <div class="products-area">
+                @if(count($activeFilterTags))
+                    <div class="listing-active-filters">
+                        <span>Active filters:</span>
+                        @foreach($activeFilterTags as $filter)
+                            <a href="{{ $removeFilterUrl($filter['key']) }}" class="listing-filter-tag">
+                                {{ $filter['label'] }} &times;
+                            </a>
+                        @endforeach
+                        <a href="{{ route('products.index') }}" class="listing-clear-all">Clear all</a>
+                    </div>
+                @endif
+
                 <div class="listing-toolbar">
                     <p class="listing-count">
                         @if($products->total() > 0)

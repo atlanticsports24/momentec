@@ -21,21 +21,13 @@
     $clearFiltersUrl = $clearFiltersUrl ?? $formAction;
     $emptyClearUrl = $emptyClearUrl ?? $clearFiltersUrl;
 
-    $activeFilters = $activeFilterTags ?? collect();
-    $activeFilterCount = $activeFilters->count();
+    $activeFilterTags = is_array($activeFilterTags) ? $activeFilterTags : ($activeFilterTags?->all() ?? []);
+    $activeFilterCount = count($activeFilterTags);
     $catalogQuery = $catalogQuery ?? [];
 
-    $removeFilterUrl = function (string $key, $valueToRemove = null) use ($formAction, $catalogQuery): string {
+    $removeFilterUrl = function (string $key) use ($formAction, $catalogQuery): string {
         $query = $catalogQuery;
-        if (in_array($key, ['brands', 'categories', 'colors', 'sizes'], true)) {
-            $current = array_values(array_filter((array) ($query[$key] ?? [])));
-            $query[$key] = array_values(array_filter($current, fn ($v) => $v !== $valueToRemove));
-            if ($query[$key] === []) {
-                unset($query[$key]);
-            }
-        } else {
-            unset($query[$key]);
-        }
+        unset($query[$key]);
 
         $base = strtok($formAction, '?') ?: $formAction;
 
@@ -114,15 +106,15 @@
         @submit="syncFilterPanels()"
     >
         @if($lockedBrandSlug)
-            <input type="hidden" name="brands[]" value="{{ $lockedBrandSlug }}">
+            <input type="hidden" name="brand" value="{{ $lockedBrandSlug }}">
         @endif
 
-        @if($activeFilters->isNotEmpty())
+        @if($activeFilterCount > 0)
             <div class="mb-6 flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white p-4">
                 <span class="text-sm font-medium text-gray-700">Active filters:</span>
-                @foreach($activeFilters as $filter)
+                @foreach($activeFilterTags as $filter)
                     <a
-                        href="{{ $removeFilterUrl($filter['key'], $filter['value']) }}"
+                        href="{{ $removeFilterUrl($filter['key']) }}"
                         class="inline-flex items-center gap-1 rounded-full bg-accent-light px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/10"
                     >
                         {{ $filter['label'] }}

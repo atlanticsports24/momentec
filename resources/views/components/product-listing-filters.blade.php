@@ -7,16 +7,17 @@
     'priceCeiling' => 500,
     'idPrefix' => '',
     'hideBrands' => false,
+    'hideCategories' => false,
     'clearFiltersUrl' => null,
 ])
 
 @php
-    $selectedBrands = array_filter((array) request('brands', request('brand') ? [request('brand')] : []));
-    $selectedCategories = array_filter((array) request('categories', request('category') ? [request('category')] : []));
-    $selectedColors = array_filter((array) request('colors', request('color') ? [request('color')] : []));
-    $selectedSizes = array_filter((array) request('sizes', request('size') ? [request('size')] : []));
-    $currentMin = request('min_price', $priceFloor);
-    $currentMax = request('max_price', $priceCeiling);
+    $selectedBrand = request()->query('brand');
+    $selectedCategory = request()->query('category');
+    $selectedColor = request()->query('color');
+    $selectedSize = request()->query('size');
+    $currentMin = request()->query('min_price', $priceFloor);
+    $currentMax = request()->query('max_price', $priceCeiling);
     $clearFiltersUrl = $clearFiltersUrl ?? route('products.index');
 @endphp
 
@@ -30,10 +31,10 @@
                     <label class="filter-item">
                         <span class="filter-item-label">
                             <input
-                                type="checkbox"
-                                name="brands[]"
+                                type="radio"
+                                name="brand"
                                 value="{{ $brand->slug }}"
-                                @checked(in_array($brand->slug, $selectedBrands, true))
+                                @checked($selectedBrand === $brand->slug)
                             >
                             {{ $brand->name }}
                         </span>
@@ -45,6 +46,7 @@
     </div>
     @endunless
 
+    @unless($hideCategories)
     <div class="filter-group">
         <h3 class="filter-group-title">Category</h3>
         <ul style="list-style:none;margin:0;padding:0;max-height:224px;overflow-y:auto;">
@@ -53,10 +55,10 @@
                     <label class="filter-item">
                         <span class="filter-item-label">
                             <input
-                                type="checkbox"
-                                name="categories[]"
+                                type="radio"
+                                name="category"
                                 value="{{ $parent->slug }}"
-                                @checked(in_array($parent->slug, $selectedCategories, true))
+                                @checked($selectedCategory === $parent->slug)
                             >
                             {{ $parent->name }}
                         </span>
@@ -66,10 +68,10 @@
                         <label class="filter-item" style="padding-left:20px;">
                             <span class="filter-item-label">
                                 <input
-                                    type="checkbox"
-                                    name="categories[]"
+                                    type="radio"
+                                    name="category"
                                     value="{{ $child->slug }}"
-                                    @checked(in_array($child->slug, $selectedCategories, true))
+                                    @checked($selectedCategory === $child->slug)
                                 >
                                 {{ $child->name }}
                             </span>
@@ -80,17 +82,22 @@
             @endforeach
         </ul>
     </div>
+    @endunless
 
     @if($allColors->count())
         <div class="filter-group" x-data="{ showAll: false }">
             <h3 class="filter-group-title">Color</h3>
             <div class="filter-colors" :style="showAll ? '' : 'max-height:200px;overflow:hidden'">
                 @foreach($allColors as $colorOption)
-                    @php $isSelected = in_array($colorOption->color, $selectedColors, true); @endphp
-                    <label title="{{ $colorOption->color }}" style="cursor:pointer;">
+                    @php $isSelected = $selectedColor === $colorOption->color; @endphp
+                    <label
+                        title="{{ $colorOption->color }}"
+                        style="cursor:pointer;"
+                        x-show="showAll || {{ $loop->index }} < 40"
+                    >
                         <input
-                            type="checkbox"
-                            name="colors[]"
+                            type="radio"
+                            name="color"
                             value="{{ $colorOption->color }}"
                             @checked($isSelected)
                             style="position:absolute;opacity:0;width:0;height:0;"
@@ -102,7 +109,7 @@
                     </label>
                 @endforeach
             </div>
-            @if($allColors->count() > 12)
+            @if($allColors->count() > 40)
                 <button
                     type="button"
                     @click="showAll = !showAll"
@@ -119,11 +126,11 @@
             <h3 class="filter-group-title">Size</h3>
             <div class="filter-sizes">
                 @foreach($allSizes as $size)
-                    @php $sizeSelected = in_array($size, $selectedSizes, true); @endphp
+                    @php $sizeSelected = $selectedSize === $size; @endphp
                     <label style="cursor:pointer;">
                         <input
-                            type="checkbox"
-                            name="sizes[]"
+                            type="radio"
+                            name="size"
                             value="{{ $size }}"
                             @checked($sizeSelected)
                             style="position:absolute;opacity:0;width:0;height:0;"

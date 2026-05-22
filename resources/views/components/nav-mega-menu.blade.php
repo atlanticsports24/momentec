@@ -1,5 +1,28 @@
 {{-- 7.3 Desktop navigation + mega menus --}}
-<nav id="desktop-main-nav" class="hidden border-t border-gray-100 lg:block" aria-label="Main navigation">
+<nav
+    id="desktop-main-nav"
+    class="hidden border-t border-gray-100 lg:block"
+    aria-label="Main navigation"
+    x-data="{
+        openMega: null,
+        openBrandsMega: false,
+        timer: null,
+        openPanel(id) {
+            clearTimeout(this.timer);
+            this.openMega = id;
+            this.openBrandsMega = false;
+        },
+        closePanel() {
+            this.timer = setTimeout(() => {
+                this.openMega = null;
+                this.openBrandsMega = false;
+            }, 150);
+        },
+        keepOpen() {
+            clearTimeout(this.timer);
+        }
+    }"
+>
     <div class="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <ul class="flex flex-wrap items-center gap-1">
             <li>
@@ -12,7 +35,8 @@
             {{-- Brands mega menu --}}
             <li
                 class="relative"
-                @mouseenter="openBrandsMega = true; openMega = null"
+                @mouseenter="clearTimeout(timer); openBrandsMega = true; openMega = null"
+                @mouseleave="closePanel()"
             >
                 <a
                     href="{{ route('brands.index') }}"
@@ -29,8 +53,8 @@
                     x-cloak
                     x-transition
                     style="position:fixed;left:0;right:0;width:100vw;top:var(--nav-bottom,140px);z-index:9999;background:#fff;border-top:3px solid #4f46e5;box-shadow:0 20px 60px rgba(0,0,0,.12);"
-                    @mouseenter="openBrandsMega = true; openMega = null"
-                    @mouseleave="openBrandsMega = false"
+                    @mouseenter="keepOpen()"
+                    @mouseleave="closePanel()"
                 >
                     <div style="max-width:1280px;margin:0 auto;padding:28px 32px;">
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -60,7 +84,8 @@
             @foreach($navCategories as $category)
                 <li
                     class="relative"
-                    @mouseenter="openMega = {{ $category->id }}; openBrandsMega = false"
+                    @mouseenter="openPanel({{ $category->id }})"
+                    @mouseleave="closePanel()"
                 >
                     <a
                         href="{{ route('categories.show', $category) }}"
@@ -81,8 +106,8 @@
                             x-cloak
                             x-transition
                             style="position:fixed;left:0;right:0;width:100vw;top:var(--nav-bottom,140px);z-index:9999;background:#fff;border-top:3px solid #4f46e5;box-shadow:0 20px 60px rgba(0,0,0,.12);"
-                            @mouseenter="openMega = {{ $category->id }}; openBrandsMega = false"
-                            @mouseleave="openMega = null"
+                            @mouseenter="keepOpen()"
+                            @mouseleave="closePanel()"
                         >
                             <div style="max-width:1280px;margin:0 auto;padding:28px 32px;display:grid;grid-template-columns:200px repeat(4,1fr);gap:24px;">
                                 <div>

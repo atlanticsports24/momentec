@@ -12,6 +12,7 @@ use App\Services\Store\OrderService;
 use App\Services\Store\StoreSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -120,6 +121,10 @@ class CheckoutController extends Controller
         }
 
         $order = $this->orders->createFromCheckout($validated);
+
+        if (Auth::guard('customer')->check()) {
+            $order->update(['customer_id' => Auth::guard('customer')->id()]);
+        }
 
         return redirect()->route('store.checkout.success', $order);
     }

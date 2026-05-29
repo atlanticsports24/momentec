@@ -24,117 +24,9 @@
 @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
 @keyframes float3 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 .f1{animation:float1 4s ease-in-out infinite}
 .f2{animation:float2 5s ease-in-out infinite 1s}
 .f3{animation:float3 3.5s ease-in-out infinite .5s}
-.fade-up{animation:fadeInUp .6s ease both}
-
-/* ── Hero ── */
-.hero-section {
-    min-height: 600px;
-    background: linear-gradient(135deg, #0a0918 0%, #1a1560 50%, #0f0e2a 100%);
-    position: relative;
-    overflow: hidden;
-}
-.hero-dots {
-    position: absolute; inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
-    background-size: 28px 28px;
-}
-.hero-glow1 {
-    position: absolute; top: -100px; left: -100px;
-    width: 500px; height: 500px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(79,70,229,.25) 0%, transparent 70%);
-}
-.hero-glow2 {
-    position: absolute; bottom: -80px; right: -80px;
-    width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(139,92,246,.2) 0%, transparent 70%);
-}
-.hero-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-    border-radius: 100px; padding: 6px 16px;
-    font-size: 13px; font-weight: 500; color: #c7d2fe;
-    margin-bottom: 20px;
-}
-.hero-badge-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #4ade80;
-    box-shadow: 0 0 8px #4ade80;
-}
-.hero-h1 {
-    font-size: clamp(2.2rem, 5vw, 3.8rem);
-    font-weight: 900;
-    line-height: 1.1;
-    color: #fff;
-    margin: 0 0 20px;
-}
-.hero-h1 span {
-    background: linear-gradient(135deg, #818cf8, #a78bfa, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-.hero-sub {
-    font-size: 1.1rem;
-    color: #94a3b8;
-    max-width: 480px;
-    line-height: 1.7;
-    margin: 0 0 32px;
-}
-.hero-stats {
-    display: flex; gap: 32px; flex-wrap: wrap;
-    margin-bottom: 40px;
-}
-.hero-stat-num { font-size: 1.6rem; font-weight: 900; color: #fff; }
-.hero-stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: #64748b; }
-.hero-stat-div { width: 1px; background: rgba(255,255,255,.1); align-self: stretch; }
-.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
-.btn-primary {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: #4f46e5; color: #fff;
-    padding: 13px 28px; border-radius: 12px;
-    font-size: 14px; font-weight: 700;
-    text-decoration: none;
-    transition: background .2s, transform .15s, box-shadow .2s;
-    box-shadow: 0 0 20px rgba(79,70,229,.4);
-}
-.btn-primary:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 0 32px rgba(79,70,229,.6); }
-.btn-outline {
-    display: inline-flex; align-items: center; gap: 8px;
-    border: 2px solid rgba(255,255,255,.2); color: #fff;
-    padding: 13px 28px; border-radius: 12px;
-    font-size: 14px; font-weight: 700;
-    text-decoration: none;
-    transition: border-color .2s, background .2s;
-}
-.btn-outline:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.06); }
-
-/* Hero Right Cards */
-.hero-visual { position: relative; height: 360px; }
-.hero-main-card {
-    position: absolute; inset: 0;
-    border-radius: 24px; overflow: hidden;
-    border: 1px solid rgba(255,255,255,.08);
-}
-.hero-main-card img { width: 100%; height: 100%; object-fit: cover; opacity: .55; }
-.hero-main-card::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(10,9,24,.8) 0%, transparent 60%);
-}
-.fc {
-    position: absolute; z-index: 10;
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.12);
-    backdrop-filter: blur(12px);
-    border-radius: 16px;
-    padding: 12px 16px;
-}
-.fc-brand { top: 20px; left: -24px; display: flex; align-items: center; gap: 10px; }
-.fc-new { top: 14px; right: -16px; display: flex; align-items: center; gap: 8px; }
-.fc-ship { bottom: -16px; left: 50%; transform: translateX(-50%); white-space: nowrap; display: flex; align-items: center; gap: 10px; }
 
 /* ── Announcement ── */
 .ann-bar {
@@ -372,60 +264,67 @@ $gradients = [
     </div>
 </div>
 
-{{-- ── HERO ── --}}
-<section class="hero-section">
-    <div class="hero-dots"></div>
-    <div class="hero-glow1"></div>
-    <div class="hero-glow2"></div>
-
-    <div class="container" style="position:relative;z-index:1;padding-top:64px;padding-bottom:80px;">
-        <div style="display:grid;grid-template-columns:1fr;gap:48px;align-items:center;">
-
-            {{-- Left --}}
-            <div style="max-width:600px;" class="fade-up">
-                <div class="hero-badge">
-                    <span class="hero-badge-dot"></span>
-                    New Season 2025 Collection
-                </div>
-
-                <h1 class="hero-h1">
-                    Premium<br>
-                    <span>Sports Apparel</span>
-                </h1>
-
-                <p class="hero-sub">
-                    Discover top brands, filter by category, color, and size.
-                    Built for teams, retailers, and distributors.
-                </p>
-
-                <div class="hero-stats">
-                    <div>
-                        <div class="hero-stat-num">500+</div>
-                        <div class="hero-stat-lbl">Products</div>
-                    </div>
-                    <div class="hero-stat-div"></div>
-                    <div>
-                        <div class="hero-stat-num">8+</div>
-                        <div class="hero-stat-lbl">Top Brands</div>
-                    </div>
-                    <div class="hero-stat-div"></div>
-                    <div>
-                        <div class="hero-stat-num">50+</div>
-                        <div class="hero-stat-lbl">Categories</div>
-                    </div>
-                </div>
-
-                <div class="hero-btns">
-                    <a href="{{ route('products.index') }}" class="btn-primary">
-                        Shop Now
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                    </a>
-                    <a href="{{ route('brands.index') }}" class="btn-outline">
-                        Browse Brands
-                    </a>
-                </div>
-            </div>
-        </div>
+<section style="position:relative;width:100%;height:450px;overflow:hidden;background:#0a0918;"
+    x-data="{
+        current: 0,
+        total: 3,
+        timer: null,
+        init() { this.timer = setInterval(() => { this.current = (this.current + 1) % this.total }, 5000) },
+        go(i) { this.current = i; clearInterval(this.timer); this.timer = setInterval(() => { this.current = (this.current + 1) % this.total }, 5000) }
+    }">
+    <!-- Slide 1 -->
+    <div style="position:absolute;inset:0;transition:opacity .6s ease;"
+         :style="current===0 ? 'opacity:1;z-index:2' : 'opacity:0;z-index:1'">
+        <img src="{{ asset('images/hero-1.jpg') }}"
+             alt="Banner 1"
+             loading="eager"
+             fetchpriority="high"
+             onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=1600&h=450&fit=crop&fm=webp&q=80'"
+             style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+    <!-- Slide 2 -->
+    <div style="position:absolute;inset:0;transition:opacity .6s ease;"
+         :style="current===1 ? 'opacity:1;z-index:2' : 'opacity:0;z-index:1'">
+        <img src="{{ asset('images/hero-2.jpg') }}"
+             alt="Banner 2"
+             loading="lazy"
+             onerror="this.src='https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1600&h=450&fit=crop&fm=webp&q=80'"
+             style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+    <!-- Slide 3 -->
+    <div style="position:absolute;inset:0;transition:opacity .6s ease;"
+         :style="current===2 ? 'opacity:1;z-index:2' : 'opacity:0;z-index:1'">
+        <img src="{{ asset('images/hero-1.jpg') }}"
+             alt="Banner 3"
+             loading="lazy"
+             onerror="this.src='https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=1600&h=450&fit=crop&fm=webp&q=80'"
+             style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+    <!-- Prev -->
+    <button @click="go((current-1+total)%total)"
+            style="position:absolute;left:16px;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,.35)'"
+            onmouseout="this.style.background='rgba(255,255,255,.2)'"
+            aria-label="Previous">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <!-- Next -->
+    <button @click="go((current+1)%total)"
+            style="position:absolute;right:16px;top:50%;transform:translateY(-50%);z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s;"
+            onmouseover="this.style.background='rgba(255,255,255,.35)'"
+            onmouseout="this.style.background='rgba(255,255,255,.2)'"
+            aria-label="Next">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+    </button>
+    <!-- Dots -->
+    <div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:8px;align-items:center;">
+        <template x-for="i in total" :key="i">
+            <button @click="go(i-1)"
+                    style="border:none;cursor:pointer;border-radius:100px;transition:all .3s;"
+                    :style="current===i-1 ? 'width:22px;height:6px;background:#fff;' : 'width:6px;height:6px;background:rgba(255,255,255,.45);'"
+                    :aria-label="'Slide '+i">
+            </button>
+        </template>
     </div>
 </section>
 

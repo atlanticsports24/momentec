@@ -35,6 +35,36 @@ class CartController extends Controller
         return redirect()->route('store.cart')->with('success', 'Added to cart.');
     }
 
+    public function addBulk(Request $request): RedirectResponse
+    {
+        $items = $request->input('items', []);
+
+        \Log::info('addBulk received:', ['items' => $items, 'all' => $request->all()]);
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $variantId = (int) ($item['variant_id'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 0);
+
+            if ($variantId > 0 && $quantity > 0) {
+                $this->cart->add($variantId, $quantity);
+            }
+        }
+
+        $count = $this->cart->count();
+
+        if ($count === 0) {
+            return redirect()->route('store.cart')
+                ->with('error', 'No items were added. Please select a color and enter quantities.');
+        }
+
+        return redirect()->route('store.cart')
+            ->with('success', $count.' items added to cart!');
+    }
+
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([

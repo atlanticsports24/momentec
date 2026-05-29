@@ -4,6 +4,7 @@
     $contactPhone = config('site.contact_phone');
     $searchAjaxUrl = route('search');
     $searchPageUrl = route('search');
+    $cartCount = app(\App\Services\Store\CartService::class)->count();
 @endphp
 
 <header
@@ -192,17 +193,69 @@
                         </svg>
                     </button>
 
-                    <a href="{{ url('/admin') }}" class="group inline-flex rounded-lg p-2 hover:bg-gray-100" aria-label="Account" title="Account">
-                        <svg class="transition group-hover:!text-[#4f46e5]" style="color:#374151;width:22px;height:22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    @php $customer = auth('customer')->user(); @endphp
+
+                    @if($customer)
+                    <div style="position:relative;" x-data="{ open: false }">
+                        <button @click="open=!open" @click.outside="open=false"
+                                style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;transition:all .2s;"
+                                onmouseover="this.style.borderColor='#4f46e5'"
+                                onmouseout="this.style.borderColor='#e5e7eb'">
+                            <div style="width:28px;height:28px;border-radius:50%;background:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0;">
+                                {{ strtoupper(substr($customer->firstname, 0, 1)) }}
+                            </div>
+                            <span style="font-size:13px;font-weight:600;color:#111827;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                {{ $customer->firstname }}
+                            </span>
+                            <svg width="12" height="12" fill="none" stroke="#6b7280" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+
+                        <div x-show="open" x-cloak
+                             style="position:absolute;right:0;top:calc(100% + 8px);width:200px;background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:200;overflow:hidden;">
+                            <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;">
+                                <div style="font-size:13px;font-weight:700;color:#111827;">{{ $customer->full_name }}</div>
+                                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">{{ $customer->email }}</div>
+                            </div>
+                            @foreach([
+                                [route('customer.dashboard'),'Dashboard','M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+                                [route('customer.orders'),'My Orders','M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'],
+                                [route('customer.wishlist'),'Wishlist','M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'],
+                                [route('customer.account'),'Profile','M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
+                            ] as [$url, $label, $icon])
+                            <a href="{{ $url }}"
+                               style="display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;font-weight:600;color:#374151;text-decoration:none;transition:background .15s;"
+                               onmouseover="this.style.background='#f9fafb'"
+                               onmouseout="this.style.background='transparent'">
+                                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/></svg>
+                                {{ $label }}
+                            </a>
+                            @endforeach
+                            <div style="border-top:1px solid #f1f5f9;padding:6px;">
+                                <form action="{{ route('customer.logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                            style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;font-size:13px;font-weight:600;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:8px;transition:background .15s;"
+                                            onmouseover="this.style.background='#fef2f2'"
+                                            onmouseout="this.style.background='transparent'">
+                                        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    @else
+                    <a href="{{ route('customer.login') }}"
+                       style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;color:#374151;text-decoration:none;transition:background .2s;"
+                       onmouseover="this.style.background='#f3f4f6'"
+                       onmouseout="this.style.background='transparent'"
+                       title="Login / Register">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                     </a>
-
-                    <button type="button" class="group inline-flex rounded-lg p-2 hover:bg-gray-100" aria-label="Wishlist" title="Wishlist (coming soon)">
-                        <svg class="transition group-hover:!text-[#4f46e5]" style="color:#374151;width:22px;height:22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                    </button>
+                    @endif
 
                     <button
                         type="button"
@@ -213,7 +266,27 @@
                         <svg class="transition group-hover:!text-[#4f46e5]" style="color:#374151;width:22px;height:22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                        <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold" style="background:#4f46e5;color:#fff;">0</span>
+                        @if($cartCount > 0)
+                        <span style="
+                            position:absolute;
+                            top:-4px;
+                            right:-4px;
+                            min-width:18px;
+                            height:18px;
+                            background:#4f46e5;
+                            color:#fff;
+                            font-size:10px;
+                            font-weight:800;
+                            border-radius:100px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            padding:0 4px;
+                            line-height:1;
+                            border:2px solid #fff;
+                            white-space:nowrap;
+                        ">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
+                        @endif
                     </button>
                 </div>
             </div>

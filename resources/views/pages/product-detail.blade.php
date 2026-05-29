@@ -39,105 +39,112 @@
 
 @push('styles')
 <style>
-    .pd-wrap { max-width:1280px; margin:0 auto; padding:32px 24px; }
-    .pd-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
-    @media(max-width:768px) { .pd-grid { grid-template-columns:1fr; } }
+    .pdp { max-width:1280px; margin:0 auto; padding:0 24px; }
 
-    .pd-gallery { position:sticky; top:80px; }
-    .pd-main-wrap { aspect-ratio:1/1; border-radius:20px; overflow:hidden; background:#f8fafc; border:1.5px solid #e5e7eb; margin-bottom:12px; cursor:zoom-in; }
-    .pd-main-img { width:100%; height:100%; object-fit:contain; transition:transform .4s; }
-    .pd-main-wrap:hover .pd-main-img { transform:scale(1.06); }
-    .pd-thumbs { display:flex; gap:8px; flex-wrap:wrap; }
-    .pd-thumb { width:70px; height:70px; border-radius:12px; overflow:hidden; border:2px solid #e5e7eb; cursor:pointer; background:#f8fafc; transition:border-color .2s; flex-shrink:0; padding:0; }
-    .pd-thumb.active, .pd-thumb:hover { border-color:#4f46e5; }
-    .pd-thumb img { width:100%; height:100%; object-fit:contain; display:block; }
+    .bc { padding:12px 0; display:flex; align-items:center; gap:8px; font-size:12px; color:#9ca3af; flex-wrap:wrap; }
+    .bc a { color:#9ca3af; text-decoration:none; }
+    .bc a:hover { color:#4f46e5; }
+    .bc-sep { color:#d1d5db; }
 
-    .pd-info { padding:4px 0; }
-    .pd-brand-link { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#4f46e5; text-decoration:none; }
-    .pd-brand-link:hover { color:#3730a3; }
-    .pd-title { font-size:clamp(1.3rem,2.5vw,1.75rem); font-weight:900; color:#111827; line-height:1.25; margin:8px 0 10px; }
-    .pd-meta { display:flex; align-items:center; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
-    .pd-sku { font-size:12px; color:#9ca3af; }
-    .pd-cat-pill { font-size:12px; background:#eef2ff; color:#4f46e5; border-radius:100px; padding:3px 10px; text-decoration:none; font-weight:600; }
-    .pd-price-box { background:linear-gradient(135deg,#f8fafc,#fff); border:1.5px solid #e5e7eb; border-radius:16px; padding:16px 20px; margin-bottom:20px; }
-    .pd-price-from { font-size:12px; color:#9ca3af; font-weight:500; }
-    .pd-price-main { font-size:2rem; font-weight:900; color:#111827; line-height:1; margin:4px 0; }
-    .pd-price-range { font-size:13px; color:#6b7280; }
-    .pd-divider { height:1px; background:#f1f5f9; margin:18px 0; }
-    .pd-label { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#374151; margin-bottom:10px; }
-    .pd-label-muted { font-weight:400; text-transform:none; color:#6b7280; }
-    .pd-swatches { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
-    .pd-swatch { width:34px; height:34px; border-radius:50%; border:2.5px solid #e5e7eb; cursor:pointer; transition:all .2s; position:relative; padding:0; }
-    .pd-swatch:hover { transform:scale(1.15); }
-    .pd-swatch.ring { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.2); }
-    .pd-sizes { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
-    .pd-size { padding:8px 16px; border-radius:10px; border:1.5px solid #e5e7eb; background:#fff; font-size:13px; font-weight:600; color:#374151; cursor:pointer; transition:all .2s; }
-    .pd-size:hover:not(:disabled) { border-color:#4f46e5; color:#4f46e5; }
-    .pd-size.active { background:#4f46e5; color:#fff; border-color:#4f46e5; }
-    .pd-size:disabled { cursor:not-allowed; color:#9ca3af; text-decoration:line-through; opacity:.6; }
-    .pd-size-chart-btn { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#4f46e5; background:none; border:none; cursor:pointer; padding:0; margin-bottom:18px; }
-    .pd-size-chart-btn:hover { color:#3730a3; }
-    .pd-variant-box { background:#f8fafc; border:1px solid #e5e7eb; border-radius:14px; padding:16px 20px; margin-bottom:20px; display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px; }
-    .pd-v-label { color:#9ca3af; font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
-    .pd-v-val { color:#111827; font-weight:700; margin-top:2px; }
-    .pd-btn-primary { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#4f46e5; color:#fff; border:none; border-radius:14px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; text-decoration:none; margin-bottom:12px; }
-    .pd-btn-primary:hover { background:#4338ca; transform:translateY(-1px); box-shadow:0 8px 24px rgba(79,70,229,.3); }
-    .pd-btn-secondary { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:#fff; color:#374151; border:1.5px solid #e5e7eb; border-radius:14px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; }
-    .pd-btn-secondary:hover { border-color:#4f46e5; color:#4f46e5; }
-    .pd-trust { display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
-    .pd-trust-item { display:flex; align-items:center; gap:6px; font-size:12px; color:#6b7280; }
-    .pd-trust-item svg { width:14px; height:14px; color:#059669; flex-shrink:0; }
+    .pdp-grid { display:grid; grid-template-columns:45% 55%; gap:40px; padding:24px 0 40px; align-items:start; }
+    @media(max-width:768px) { .pdp-grid { grid-template-columns:1fr; } }
 
-    .pd-tabs-wrap { max-width:1280px; margin:0 auto; padding:0 24px 48px; }
-    .pd-tab-bar { display:flex; border-bottom:2px solid #e5e7eb; margin-bottom:28px; gap:0; overflow-x:auto; }
-    .pd-tab { padding:12px 24px; font-size:14px; font-weight:600; color:#6b7280; border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .2s; }
+    .gal-main {
+        aspect-ratio:1/1;
+        border-radius:16px;
+        overflow:hidden;
+        background:#f8fafc;
+        border:1.5px solid #e5e7eb;
+        margin-bottom:12px;
+        cursor:zoom-in;
+        position:relative;
+    }
+    .gal-main img {
+        width:100%;
+        height:100%;
+        object-fit:contain;
+        transition:transform 0.4s ease;
+        display:block;
+    }
+    .gal-main:hover img { transform:scale(1.08); }
+    .gal-thumbs { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .gal-thumb {
+        width:68px;
+        height:68px;
+        border-radius:10px;
+        overflow:hidden;
+        border:2px solid #e5e7eb;
+        cursor:pointer;
+        background:#f8fafc;
+        transition:border-color .2s, transform .15s;
+        flex-shrink:0;
+    }
+    .gal-thumb:hover { border-color:#818cf8; transform:translateY(-2px); }
+    .gal-thumb.on { border-color:#4f46e5; box-shadow:0 0 0 2px rgba(79,70,229,.2); }
+    .gal-thumb img { width:100%; height:100%; object-fit:contain; display:block; }
+
+    .pi-brand { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#4f46e5; text-decoration:none; display:inline-block; margin-bottom:6px; }
+    .pi-brand:hover { color:#3730a3; }
+    .pi-title { font-size:clamp(1.3rem,2.5vw,1.8rem); font-weight:900; color:#111827; line-height:1.25; margin:0 0 10px; }
+    .pi-badges { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .pi-badge { font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; }
+    .pi-badge-sku { background:#f3f4f6; color:#6b7280; }
+    .pi-badge-cat { background:#eef2ff; color:#4f46e5; }
+
+    .pi-price-box { border:1.5px solid #e5e7eb; border-radius:14px; padding:16px 20px; margin-bottom:20px; background:#fafafa; }
+    .pi-price-label { font-size:11px; color:#9ca3af; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+    .pi-price { font-size:2.2rem; font-weight:900; color:#111827; line-height:1; }
+    .pi-price-sub { font-size:13px; color:#9ca3af; margin-top:4px; }
+
+    .pi-section-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#374151; margin-bottom:10px; }
+    .pi-swatches { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .pi-swatch { width:32px; height:32px; border-radius:50%; border:2.5px solid #e5e7eb; cursor:pointer; transition:all .2s; padding:0; }
+    .pi-swatch:hover { transform:scale(1.15); }
+    .pi-swatch.on { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.25); }
+    .pi-cart-btn { width:100%; background:#4f46e5; color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; margin-bottom:12px; padding:14px; }
+    .pi-cart-btn:hover:not(:disabled) { background:#4338ca; transform:translateY(-1px); box-shadow:0 6px 20px rgba(79,70,229,.35); }
+    .pi-cart-btn:disabled { background:#9ca3af; cursor:not-allowed; transform:none; box-shadow:none; }
+    .pi-quote-btn { width:100%; border:1.5px solid #e5e7eb; background:#fff; color:#374151; border-radius:12px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; margin-bottom:16px; display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none; }
+    .pi-quote-btn:hover { border-color:#4f46e5; color:#4f46e5; }
+    .pi-share-btn { width:100%; border:1.5px solid #e5e7eb; background:#fff; color:#6b7280; border-radius:12px; padding:11px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s; }
+    .pi-share-btn:hover { border-color:#4f46e5; color:#4f46e5; }
+
+    .pi-delivery { border:1px solid #e5e7eb; border-radius:14px; padding:16px; margin-bottom:16px; }
+    .pi-delivery-item { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+    .pi-delivery-item:last-child { border-bottom:none; padding-bottom:0; }
+    .pi-delivery-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .pi-delivery-text-title { font-size:13px; font-weight:700; color:#111827; }
+    .pi-delivery-text-sub { font-size:12px; color:#9ca3af; margin-top:1px; }
+
+    .pd-tabs { max-width:1280px; margin:0 auto; padding:0 24px 48px; }
+    .pd-tab-bar { display:flex; border-bottom:2px solid #e5e7eb; margin-bottom:28px; overflow-x:auto; }
+    .pd-tab { padding:12px 24px; font-size:14px; font-weight:600; color:#6b7280; border:none; background:none; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .2s; }
     .pd-tab.on { color:#4f46e5; border-bottom-color:#4f46e5; }
-    .pd-tab:hover { color:#374151; }
-    .pd-desc { font-size:14px; line-height:1.8; color:#374151; }
+    .pd-tab:hover:not(.on) { color:#374151; }
+    .pd-desc { font-size:14px; line-height:1.85; color:#374151; }
     .pd-desc p { margin:0 0 12px; }
-    .pd-features { list-style:none; padding:0; margin:20px 0 0; display:grid; gap:10px; }
-    @media(min-width:640px) { .pd-features { grid-template-columns:repeat(2,1fr); } }
-    .pd-features li { display:flex; align-items:flex-start; gap:8px; font-size:14px; color:#374151; }
-    .pd-features svg { width:18px; height:18px; flex-shrink:0; color:#059669; margin-top:2px; }
-    .pd-table { width:100%; border-collapse:collapse; font-size:13px; }
-    .pd-table th { background:#f8fafc; padding:11px 16px; text-align:left; font-weight:700; color:#6b7280; border-bottom:1px solid #e5e7eb; font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
-    .pd-table th button { background:none; border:none; cursor:pointer; font:inherit; color:inherit; padding:0; display:inline-flex; align-items:center; gap:4px; }
-    .pd-table th button:hover { color:#4f46e5; }
-    .pd-table td { padding:11px 16px; border-bottom:1px solid #f1f5f9; color:#374151; }
-    .pd-table tr:last-child td { border-bottom:none; }
-    .pd-table tr:hover td { background:#fafafa; }
-    .pd-table tr.row-selected td { background:#eef2ff; }
-    .pd-table-sort { color:#4f46e5; }
-    .pd-color-cell { display:flex; align-items:center; gap:8px; }
-    .pd-color-dot { width:14px; height:14px; border-radius:50%; border:1px solid #e5e7eb; flex-shrink:0; display:inline-block; }
-    .pd-sku-cell { font-family:monospace; font-size:12px; color:#4f46e5; }
-    .pd-price-cell { font-weight:700; }
-    .pd-upc-cell { font-size:12px; color:#9ca3af; }
-    .pd-status-badge { border-radius:100px; padding:3px 10px; font-size:11px; font-weight:700; display:inline-block; }
-    .pd-status-badge.active { background:#d1fae5; color:#059669; }
-    .pd-status-badge.inactive { background:#f3f4f6; color:#6b7280; }
-    .pd-imgs-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-    @media(max-width:640px) { .pd-imgs-grid { grid-template-columns:repeat(2,1fr); } }
-    .pd-imgs-item { aspect-ratio:1/1; border-radius:14px; overflow:hidden; border:1px solid #e5e7eb; background:#f8fafc; cursor:pointer; padding:0; width:100%; }
-    .pd-imgs-item img { width:100%; height:100%; object-fit:contain; display:block; }
+
+    .spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    @media(max-width:640px) { .spec-grid { grid-template-columns:1fr; } }
+    .spec-box { background:#f8fafc; border-radius:14px; padding:20px 24px; }
+    .spec-box-title { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:#9ca3af; margin-bottom:14px; }
+    .spec-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e5e7eb; font-size:13px; gap:12px; }
+    .spec-row:last-child { border-bottom:none; }
+    .spec-key { color:#6b7280; font-weight:500; }
+    .spec-val { color:#111827; font-weight:700; text-align:right; }
+    .spec-package { font-size:13px; color:#6b7280; line-height:1.7; }
+    .spec-features { list-style:none; padding:0; margin:0; }
+    .spec-features li { font-size:13px; color:#374151; padding:6px 0; border-bottom:1px solid #e5e7eb; }
+    .spec-features li:last-child { border-bottom:none; }
 
     .pd-related { background:#f8fafc; padding:48px 0; }
     .pd-related-inner { max-width:1280px; margin:0 auto; padding:0 24px; }
     .pd-related-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-    .pd-related-title { font-size:1.3rem; font-weight:800; color:#111827; margin:0; }
+    .pd-related-title { font-size:1.3rem; font-weight:800; color:#111827; }
     .pd-related-link { font-size:13px; font-weight:700; color:#4f46e5; text-decoration:none; }
     .pd-related-link:hover { color:#3730a3; }
     .pd-related-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
-    @media(min-width:640px) { .pd-related-grid { grid-template-columns:repeat(3,1fr); } }
-    @media(min-width:1024px) { .pd-related-grid { grid-template-columns:repeat(4,1fr); } }
-
-    .pd-modal { position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; padding:16px; }
-    .pd-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.6); }
-    .pd-modal-panel { position:relative; max-height:90vh; max-width:48rem; width:100%; overflow:auto; border-radius:16px; background:#fff; padding:20px; box-shadow:0 25px 50px rgba(0,0,0,.2); }
-    .pd-modal-close { position:absolute; right:12px; top:12px; width:36px; height:36px; border:none; border-radius:8px; background:#f8fafc; color:#6b7280; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .pd-modal-close:hover { background:#f1f5f9; color:#111827; }
-    .pd-modal-title { font-size:1.125rem; font-weight:800; color:#111827; margin:0 0 16px; }
-    .pd-modal-img { width:100%; border-radius:12px; display:block; }
+    @media(min-width:640px) { .pd-related-grid { grid-template-columns:repeat(4,1fr); } }
 
     [x-cloak] { display:none !important; }
 </style>
@@ -145,9 +152,12 @@
 
 @section('content')
 @php
-    $placeholder = asset('images/placeholder.jpg');
-    $defaultImage = $product->mainImageUrl() ?? $placeholder;
+    $placeholder = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2Y4ZmFmYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5Y2EzYWYiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+    $mainImg = $product->mainImageUrl() ?? $placeholder;
+    $colors = $product->variants->filter(fn ($v) => filled($v->color))->unique('color')->values();
+    $allImages = $product->images->filter(fn ($i) => $i->publicUrl());
 
+    $defaultImage = $product->mainImageUrl() ?? asset('images/placeholder.jpg');
     $galleryImages = $product->images
         ->map(fn ($image) => [
             'url' => $image->publicUrl(),
@@ -157,7 +167,6 @@
         ->filter(fn ($img) => filled($img['url']))
         ->unique('url')
         ->values();
-
     if ($galleryImages->isEmpty()) {
         $galleryImages = collect([['url' => $defaultImage, 'role' => 'main', 'alt' => $product->name]]);
     }
@@ -180,11 +189,7 @@
         'main_image_url' => $variant->mainImageUrl() ?? (filled($variant->main_image_url) && str_starts_with($variant->main_image_url, 'http') ? $variant->main_image_url : null),
     ])->values();
 
-    $uniqueColors = $product->variants
-        ->filter(fn ($v) => filled($v->color))
-        ->unique('color')
-        ->values();
-
+    $uniqueColors = $colors;
     $primaryCategory = $product->categories->first();
     $breadcrumbCategory = $primaryCategory?->parent ?? $primaryCategory;
 
@@ -193,425 +198,406 @@
         ->filter();
 
     $hasSizes = $product->variants->whereNotNull('size')->where('size', '!=', '')->isNotEmpty();
-    $hasVariantsTab = $product->variants->count() > 0;
-    $hasImagesTab = $galleryImages->count() > 0;
-    $hasDescriptionTab = filled($product->description) || $featureLines->isNotEmpty();
+    $unitPrice = $product->min_msrp ? (float) $product->min_msrp : 0;
 @endphp
 
-<div x-data="productDetailState">
-    {{-- SECTION 1 — Breadcrumb --}}
-    <div style="background:#f8fafc;border-bottom:1px solid #e5e7eb;padding:10px 0;">
-        <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7280;">
-            <a href="{{ route('home') }}" style="color:#6b7280;text-decoration:none;">🏠</a>
-            <span>›</span>
-            @if($breadcrumbCategory)
-                <a href="{{ route('categories.show', $breadcrumbCategory) }}" style="color:#6b7280;text-decoration:none;">{{ $breadcrumbCategory->name }}</a>
-                <span>›</span>
-            @else
-                <a href="{{ route('products.index') }}" style="color:#6b7280;text-decoration:none;">Products</a>
-                <span>›</span>
+<!-- BREADCRUMB -->
+<div style="background:#f8fafc;border-bottom:1px solid #e5e7eb;">
+    <div class="pdp">
+        <div class="bc">
+            <a href="{{ route('home') }}">Home</a>
+            @if($product->brand)
+                <span class="bc-sep">›</span>
+                <a href="{{ route('brands.show', $product->brand) }}">{{ $product->brand->name }}</a>
             @endif
-            <span style="color:#111827;font-weight:600;">{{ Str::limit($product->name, 40) }}</span>
+            @if($primaryCategory)
+                <span class="bc-sep">›</span>
+                <a href="{{ route('categories.show', $primaryCategory) }}">{{ $primaryCategory->name }}</a>
+            @endif
+            <span class="bc-sep">›</span>
+            <span style="color:#111827;font-weight:600;">{{ Str::limit($product->name, 50) }}</span>
         </div>
     </div>
-
-    {{-- SECTION 2 — Main Product Area --}}
-    <div class="pd-wrap">
-        <div class="pd-grid">
-            {{-- LEFT — Gallery --}}
-            <div class="pd-gallery">
-                <div class="pd-main-wrap">
-                    <img
-                        class="pd-main-img"
-                        :src="displayImage"
-                        alt="{{ $product->name }}"
-                        width="600"
-                        height="600"
-                        onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5Y2EzYWYiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='"
-                    >
-                </div>
-                @if($galleryImages->count() > 1)
-                    <div class="pd-thumbs">
-                        @foreach($galleryImages->take(6) as $image)
-                            <button
-                                type="button"
-                                class="pd-thumb"
-                                :class="{ active: activeImageUrl === @js($image['url']) }"
-                                @click="selectGalleryImage(@js($image['url']))"
-                                aria-label="View {{ $image['alt'] }}"
-                            >
-                                <img src="{{ $image['url'] }}" alt="{{ $image['alt'] }}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-
-            {{-- RIGHT — Product Info --}}
-            <div class="pd-info">
-                @if($product->brand)
-                    <a href="{{ route('brands.show', $product->brand) }}" class="pd-brand-link">{{ $product->brand->name }}</a>
-                @endif
-
-                <h1 class="pd-title">{{ $product->name }}</h1>
-
-                <div class="pd-meta">
-                    <span class="pd-sku">SKU: {{ $product->parent_sku }}</span>
-                    @if($primaryCategory)
-                        <a href="{{ route('categories.show', $primaryCategory) }}" class="pd-cat-pill">{{ $primaryCategory->name }}</a>
-                    @endif
-                </div>
-
-                @if($product->min_msrp)
-                    <div class="pd-price-box">
-                        <div class="pd-price-from">Starting from</div>
-                        <div class="pd-price-main">${{ number_format($product->min_msrp, 2) }}</div>
-                        @if($product->max_msrp && $product->max_msrp > $product->min_msrp)
-                            <div class="pd-price-range">Up to ${{ number_format($product->max_msrp, 2) }} depending on variant</div>
-                        @endif
-                    </div>
-                @endif
-
-                <div class="pd-divider"></div>
-
-                @if($uniqueColors->isNotEmpty())
-                    <div class="pd-label">
-                        Color
-                        <span x-show="selectedColor" x-text="' — ' + selectedColor" class="pd-label-muted"></span>
-                    </div>
-                    <div class="pd-swatches">
-                        @foreach($uniqueColors as $variant)
-                            <button
-                                type="button"
-                                class="pd-swatch"
-                                :class="{ ring: selectedColor === @js($variant->color) }"
-                                @click="selectColor(@js($variant->color))"
-                                title="{{ $variant->color }}"
-                                style="background-color:{{ $variant->color_hex_value ?: '#d1d5db' }};"
-                                aria-label="Color {{ $variant->color }}"
-                            ></button>
-                        @endforeach
-                    </div>
-                @endif
-
-                @if($hasSizes)
-                    <div class="pd-label">Size</div>
-                    <div class="pd-sizes">
-                        <template x-for="size in availableSizes" :key="size">
-                            <button
-                                type="button"
-                                class="pd-size"
-                                :class="{ active: selectedSize === size }"
-                                :disabled="!isSizeAvailable(size)"
-                                @click="selectSize(size)"
-                                x-text="size"
-                            ></button>
-                        </template>
-                    </div>
-                @endif
-
-                @if($sizeChartUrl)
-                    <button type="button" class="pd-size-chart-btn" @click="sizeChartOpen = true">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 0v10"/>
-                        </svg>
-                        View size chart
-                    </button>
-                @endif
-
-                <div x-show="selectedVariant" x-cloak class="pd-variant-box">
-                    <div>
-                        <div class="pd-v-label">Item SKU</div>
-                        <div class="pd-v-val" x-text="selectedVariant?.item_sku || '—'"></div>
-                    </div>
-                    <div>
-                        <div class="pd-v-label">Price</div>
-                        <div class="pd-v-val" x-text="selectedVariant?.msrp ? '$' + Number(selectedVariant.msrp).toFixed(2) : '—'"></div>
-                    </div>
-                    <div>
-                        <div class="pd-v-label">UPC</div>
-                        <div class="pd-v-val" x-text="selectedVariant?.upc_code || '—'"></div>
-                    </div>
-                    <div>
-                        <div class="pd-v-label">Weight</div>
-                        <div class="pd-v-val" x-text="selectedVariant?.weight ? selectedVariant.weight + ' ' + (selectedVariant.weight_unit || '') : '—'"></div>
-                    </div>
-                    <div>
-                        <div class="pd-v-label">Origin</div>
-                        <div class="pd-v-val" x-text="selectedVariant?.country_of_origin || '—'"></div>
-                    </div>
-                    <div>
-                        <div class="pd-v-label">Status</div>
-                        <div class="pd-v-val" x-text="selectedVariant?.status || '—'"></div>
-                    </div>
-                </div>
-
-                <div class="pd-divider"></div>
-
-                <a href="{{ route('products.index') }}" class="pd-btn-primary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    Request a Quote
-                </a>
-                <button type="button" class="pd-btn-secondary" @click="shareProduct()">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-                    Share This Product
-                </button>
-
-                <div class="pd-trust">
-                    <span class="pd-trust-item">
-                        <svg fill="none" stroke="#059669" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Free shipping $150+
-                    </span>
-                    <span class="pd-trust-item">
-                        <svg fill="none" stroke="#059669" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Easy returns
-                    </span>
-                    <span class="pd-trust-item">
-                        <svg fill="none" stroke="#059669" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Bulk pricing available
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if($sizeChartUrl)
-        <div x-show="sizeChartOpen" x-cloak class="pd-modal" role="dialog" aria-modal="true" aria-label="Size chart">
-            <div class="pd-modal-backdrop" @click="sizeChartOpen = false"></div>
-            <div class="pd-modal-panel" @click.stop>
-                <button type="button" class="pd-modal-close" @click="sizeChartOpen = false" aria-label="Close">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                <h2 class="pd-modal-title">Size Chart</h2>
-                <img class="pd-modal-img" :src="sizeChartUrl" alt="Size chart for {{ $product->name }}">
-            </div>
-        </div>
-    @endif
-
-    {{-- SECTION 3 — Description + Variants + Images Tabs --}}
-    @if($hasDescriptionTab || $hasVariantsTab || $hasImagesTab)
-        <div class="pd-tabs-wrap">
-            <div class="pd-tab-bar" role="tablist">
-                @if($hasDescriptionTab)
-                    <button type="button" class="pd-tab" :class="activeTab === 'description' ? 'on' : ''" @click="activeTab = 'description'" role="tab">Description</button>
-                @endif
-                @if($hasVariantsTab)
-                    <button type="button" class="pd-tab" :class="activeTab === 'variants' ? 'on' : ''" @click="activeTab = 'variants'" role="tab">
-                        All Variants ({{ $product->variants->count() }})
-                    </button>
-                @endif
-                @if($hasImagesTab)
-                    <button type="button" class="pd-tab" :class="activeTab === 'images' ? 'on' : ''" @click="activeTab = 'images'" role="tab">
-                        All Images ({{ $product->images->count() }})
-                    </button>
-                @endif
-            </div>
-
-            @if($hasDescriptionTab)
-                <div x-show="activeTab === 'description'" class="pd-desc">
-                    @if(filled($product->description))
-                        {!! nl2br(e($product->description)) !!}
-                    @endif
-                    @if($featureLines->isNotEmpty())
-                        <ul class="pd-features">
-                            @foreach($featureLines as $feature)
-                                <li>
-                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                    {{ $feature }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
-            @endif
-
-            @if($hasVariantsTab)
-                <div x-show="activeTab === 'variants'" x-cloak>
-                    <div style="overflow-x:auto;">
-                        <table class="pd-table">
-                            <thead>
-                                <tr>
-                                    @foreach(['item_sku' => 'SKU', 'color' => 'Color', 'size' => 'Size', 'msrp' => 'Price', 'upc_code' => 'UPC', 'status' => 'Status'] as $key => $label)
-                                        <th>
-                                            <button type="button" @click="toggleSort('{{ $key }}')">
-                                                {{ $label }}
-                                                <span class="pd-table-sort" x-show="sortKey === '{{ $key }}'" x-text="sortDir === 'asc' ? '↑' : '↓'"></span>
-                                            </button>
-                                        </th>
-                                    @endforeach
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template x-for="variant in sortedVariants" :key="variant.id">
-                                    <tr :class="{ 'row-selected': selectedVariant && selectedVariant.id === variant.id }">
-                                        <td class="pd-sku-cell" x-text="variant.item_sku || '—'"></td>
-                                        <td>
-                                            <div class="pd-color-cell">
-                                                <span
-                                                    class="pd-color-dot"
-                                                    x-show="variant.color_hex_value"
-                                                    :style="'background:' + (variant.color_hex_value || '#d1d5db')"
-                                                ></span>
-                                                <span x-text="variant.color || '—'"></span>
-                                            </div>
-                                        </td>
-                                        <td x-text="variant.size || '—'"></td>
-                                        <td class="pd-price-cell" x-text="variant.msrp ? '$' + Number(variant.msrp).toFixed(2) : '—'"></td>
-                                        <td class="pd-upc-cell" x-text="variant.upc_code || '—'"></td>
-                                        <td>
-                                            <span
-                                                class="pd-status-badge"
-                                                :class="variant.status && String(variant.status).toLowerCase() === 'active' ? 'active' : 'inactive'"
-                                                x-text="variant.status ? variant.status.charAt(0).toUpperCase() + variant.status.slice(1) : 'N/A'"
-                                            ></span>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endif
-
-            @if($hasImagesTab)
-                <div x-show="activeTab === 'images'" x-cloak>
-                    <div class="pd-imgs-grid">
-                        @foreach($galleryImages as $image)
-                            <button
-                                type="button"
-                                class="pd-imgs-item"
-                                @click="selectGalleryImage(@js($image['url'])); window.scrollTo({ top: 0, behavior: 'smooth' })"
-                            >
-                                <img src="{{ $image['url'] }}" alt="{{ $image['alt'] }}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        </div>
-    @endif
-
-    {{-- SECTION 4 — Related Products --}}
-    @if($related->count())
-        <div class="pd-related">
-            <div class="pd-related-inner">
-                <div class="pd-related-head">
-                    <div class="pd-related-title">You May Also Like</div>
-                    <a href="{{ route('products.index') }}" class="pd-related-link">View all →</a>
-                </div>
-                <div class="pd-related-grid">
-                    @foreach($related->take(4) as $rp)
-                        <x-product-card :product="$rp" />
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    @endif
 </div>
 
-@push('head')
+<!-- MAIN 2-COL -->
+<div class="pdp">
+    <div class="pdp-grid" x-data="productDetail()">
+        <!-- LEFT: GALLERY -->
+        <div style="position:sticky;top:80px;">
+            <div class="gal-main">
+                <img
+                    :src="activeImg"
+                    alt="{{ $product->name }}"
+                    onerror="this.src='{{ $placeholder }}'"
+                >
+            </div>
+            @if($allImages->count() > 0)
+                <div class="gal-thumbs">
+                    @foreach($allImages->take(8) as $img)
+                        @php $u = $img->publicUrl(); @endphp
+                        @if($u)
+                            <div
+                                class="gal-thumb"
+                                :class="activeImg === '{{ addslashes($u) }}' ? 'on' : ''"
+                                @click="setGallery('{{ addslashes($u) }}')"
+                            >
+                                <img
+                                    src="{{ $u }}"
+                                    alt="{{ $product->name }}"
+                                    loading="lazy"
+                                    onerror="this.parentElement.style.display='none'"
+                                >
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        <!-- RIGHT: INFO -->
+        <div>
+            @if($product->brand)
+                <a href="{{ route('brands.show', $product->brand) }}" class="pi-brand">{{ $product->brand->name }}</a>
+            @endif
+            <h1 class="pi-title">{{ $product->name }}</h1>
+            <div class="pi-badges">
+                <span class="pi-badge pi-badge-sku">SKU: {{ $product->parent_sku }}</span>
+                @if($primaryCategory)
+                    <a href="{{ route('categories.show', $primaryCategory) }}" class="pi-badge pi-badge-cat" style="text-decoration:none;">{{ $primaryCategory->name }}</a>
+                @endif
+            </div>
+
+            <!-- PRICE -->
+            <div class="pi-price-box">
+                <div class="pi-price-label">Starting from</div>
+                <div class="pi-price">
+                    @if($product->min_msrp)
+                        ${{ number_format($product->min_msrp, 2) }}
+                    @else
+                        Price on request
+                    @endif
+                </div>
+                @if($product->max_msrp && $product->max_msrp > $product->min_msrp)
+                    <div class="pi-price-sub">
+                        Up to ${{ number_format($product->max_msrp, 2) }}
+                    </div>
+                @endif
+            </div>
+
+            <!-- COLOR -->
+            @if($colors->isNotEmpty())
+                <div class="pi-section-label">
+                    Color
+                    <span x-show="selectedColor" x-text="' — ' + selectedColor" style="font-weight:400;text-transform:none;color:#6b7280;font-size:12px;"></span>
+                </div>
+                <div class="pi-swatches">
+                    @foreach($colors as $v)
+                        <button
+                            type="button"
+                            class="pi-swatch"
+                            :class="selectedColor === '{{ addslashes($v->color) }}' ? 'on' : ''"
+                            @click="selectColor('{{ addslashes($v->color) }}')"
+                            title="{{ $v->color }}"
+                            style="background:{{ $v->color_hex_value ?: '#d1d5db' }};"
+                            aria-label="Color {{ $v->color }}"
+                        ></button>
+                    @endforeach
+                </div>
+            @endif
+
+            <!-- SIZE & QUANTITY -->
+            @if($hasSizes)
+                <div class="pi-section-label">Size & Quantity</div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+                    <template x-for="s in availableSizes" :key="s">
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                            <div
+                                style="min-width:52px;padding:8px 14px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;font-size:13px;font-weight:700;color:#374151;text-align:center;transition:all .2s;"
+                                :style="(selectedSizes[s] || 0) > 0 ? 'border-color:#4f46e5;background:#eef2ff;color:#4f46e5;' : ''"
+                                x-text="s"
+                            ></div>
+                            <input
+                                type="number"
+                                :value="selectedSizes[s] || ''"
+                                @input="selectedSizes[s] = parseInt($event.target.value) || 0"
+                                @focus="$event.target.select()"
+                                min="0"
+                                max="999"
+                                placeholder="0"
+                                :aria-label="'Quantity for size ' + s"
+                                style="width:52px;text-align:center;border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 4px;font-size:13px;font-weight:700;color:#111827;outline:none;background:#f9fafb;"
+                                onfocus="this.style.borderColor='#4f46e5';this.style.background='#fff'"
+                                onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'"
+                            >
+                        </div>
+                    </template>
+                </div>
+
+                <div
+                    x-show="totalQty > 0"
+                    x-cloak
+                    style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;"
+                >
+                    <span style="font-size:13px;font-weight:600;color:#4f46e5;">
+                        Total: <strong x-text="totalQty + ' pcs'"></strong>
+                    </span>
+                    <span
+                        style="font-size:13px;font-weight:700;color:#111827;"
+                        x-text="'Est. $' + (totalQty * {{ floatval($product->min_msrp ?? 0) }}).toFixed(2)"
+                    ></span>
+                </div>
+            @endif
+
+            <form id="cart-form" action="{{ route('store.cart.add.bulk') }}" method="POST">
+                @csrf
+                <div id="cart-inputs-container"></div>
+                <button
+                    type="button"
+                    class="pi-cart-btn"
+                    :disabled="totalQty === 0"
+                    :style="totalQty === 0 ? 'background:#9ca3af;cursor:not-allowed;' : ''"
+                    @click="submitCart()"
+                >
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span x-show="totalQty === 0">Select Color & Enter Quantities</span>
+                    <span x-show="totalQty > 0" x-cloak>Add to Cart — <span x-text="totalQty"></span> pcs</span>
+                </button>
+            </form>
+
+            
+
+            <!-- DELIVERY INFO -->
+            <div class="pi-delivery">
+                <div class="pi-delivery-item">
+                    <div class="pi-delivery-icon" style="background:#d1fae5;">
+                        <svg width="18" height="18" fill="none" stroke="#059669" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+                    </div>
+                    <div>
+                        <div class="pi-delivery-text-title">Free Shipping</div>
+                        <div class="pi-delivery-text-sub">On all orders over $150</div>
+                    </div>
+                </div>
+                <div class="pi-delivery-item">
+                    <div class="pi-delivery-icon" style="background:#dbeafe;">
+                        <svg width="18" height="18" fill="none" stroke="#2563eb" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </div>
+                    <div>
+                        <div class="pi-delivery-text-title">Easy Returns</div>
+                        <div class="pi-delivery-text-sub">Hassle-free return policy</div>
+                    </div>
+                </div>
+                <div class="pi-delivery-item">
+                    <div class="pi-delivery-icon" style="background:#ede9fe;">
+                        <svg width="18" height="18" fill="none" stroke="#7c3aed" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div>
+                        <div class="pi-delivery-text-title">Bulk Pricing</div>
+                        <div class="pi-delivery-text-sub">Volume discounts for teams & retailers</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SHARE -->
+            <button
+                type="button"
+                class="pi-share-btn"
+                onclick="navigator.share ? navigator.share({title:@js($product->name),url:window.location.href}) : (navigator.clipboard.writeText(window.location.href), alert('Link copied!'))"
+            >
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                Share This Product
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TABS -->
+<div class="pd-tabs" x-data="{ tab: 'desc' }">
+    <div class="pd-tab-bar">
+        <button type="button" class="pd-tab" :class="tab === 'desc' ? 'on' : ''" @click="tab = 'desc'">Description</button>
+        <button type="button" class="pd-tab" :class="tab === 'specs' ? 'on' : ''" @click="tab = 'specs'">Specifications</button>
+    </div>
+
+    <!-- Description -->
+    <div x-show="tab === 'desc'" class="pd-desc">
+        @if(filled($product->description))
+            {!! nl2br(e($product->description)) !!}
+        @endif
+        @if($featureLines->isNotEmpty())
+            <ul class="spec-features" style="margin-top:20px;">
+                @foreach($featureLines as $feature)
+                    <li>{{ $feature }}</li>
+                @endforeach
+            </ul>
+        @endif
+    </div>
+
+    <!-- Specs -->
+    <div x-show="tab === 'specs'" x-cloak>
+        <div class="spec-grid">
+            <div class="spec-box">
+                <div class="spec-box-title">Key Features</div>
+                @foreach(['parent_sku' => 'Parent SKU', 'launch_date' => 'Launch Date', 'min_msrp' => 'Min Price', 'max_msrp' => 'Max Price'] as $key => $label)
+                    @if($product->$key)
+                        <div class="spec-row">
+                            <span class="spec-key">{{ $label }}</span>
+                            <span class="spec-val">
+                                @if(in_array($key, ['min_msrp', 'max_msrp']))
+                                    ${{ number_format((float) $product->$key, 2) }}
+                                @else
+                                    {{ $product->$key }}
+                                @endif
+                            </span>
+                        </div>
+                    @endif
+                @endforeach
+                @if($product->brand)
+                    <div class="spec-row">
+                        <span class="spec-key">Brand</span>
+                        <span class="spec-val">{{ $product->brand->name }}</span>
+                    </div>
+                @endif
+                @if($primaryCategory)
+                    <div class="spec-row">
+                        <span class="spec-key">Category</span>
+                        <span class="spec-val">{{ $primaryCategory->name }}</span>
+                    </div>
+                @endif
+            </div>
+            <div class="spec-box">
+                <div class="spec-box-title">What's in the Package</div>
+                <div class="spec-package">
+                    {{ $product->name }} — includes all selected variants as per order.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RELATED -->
+@if($related->count())
+    <div class="pd-related">
+        <div class="pd-related-inner">
+            <div class="pd-related-head">
+                <div class="pd-related-title">You May Also Like</div>
+                <a href="{{ route('products.index') }}" class="pd-related-link">View all →</a>
+            </div>
+            <div class="pd-related-grid">
+                @foreach($related->take(4) as $rp)
+                    <x-product-card :product="$rp" />
+                @endforeach
+            </div>
+        </div>
+    </div>
+@endif
+@endsection
+
+@push('scripts')
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('productDetailState', () => ({
+function productDetail() {
+    return {
+        activeImg: @json($mainImg),
         variants: @json($variantsForJs),
-        galleryImages: @json($galleryImages),
-        activeImageUrl: @json($galleryImages->first()['url'] ?? $defaultImage),
+        hasSizes: @json($hasSizes),
         selectedColor: null,
-        selectedSize: null,
-        activeTab: @json($hasDescriptionTab ? 'description' : ($hasVariantsTab ? 'variants' : 'images')),
-        sizeChartOpen: false,
-        sizeChartUrl: @json($sizeChartUrl),
-        sortKey: 'item_sku',
-        sortDir: 'asc',
-        productName: @json($product->name),
-
+        selectedSizes: {},
         get availableSizes() {
-            const sizes = !this.selectedColor
-                ? this.variants.map(v => v.size).filter(Boolean)
-                : this.variants.filter(v => v.color === this.selectedColor).map(v => v.size);
-            return [...new Set(sizes)];
-        },
-
-        get selectedVariant() {
-            return this.variants.find(v => v.color === this.selectedColor && v.size === this.selectedSize) || null;
-        },
-
-        get displayImage() {
-            if (this.selectedVariant?.main_image_url) {
-                return this.selectedVariant.main_image_url;
+            if (!this.selectedColor) {
+                return [...new Set(this.variants.map(v => v.size).filter(Boolean))];
             }
-            return this.activeImageUrl;
+            return [...new Set(
+                this.variants
+                    .filter(v => v.color === this.selectedColor)
+                    .map(v => v.size)
+                    .filter(Boolean)
+            )];
         },
-
+        get totalQty() {
+            if (!this.hasSizes) {
+                if (this.selectedVariant) {
+                    return 1;
+                }
+                return this.variants.length === 1 ? 1 : 0;
+            }
+            return Object.values(this.selectedSizes)
+                .reduce((sum, q) => sum + (parseInt(q) || 0), 0);
+        },
+        get selectedVariant() {
+            if (!this.selectedColor) return null;
+            return this.variants.find(v => v.color === this.selectedColor) || null;
+        },
         selectColor(color) {
             this.selectedColor = this.selectedColor === color ? null : color;
-            this.selectedSize = null;
+            this.selectedSizes = {};
             if (this.selectedColor) {
                 const match = this.variants.find(v => v.color === color && v.main_image_url);
-                if (match?.main_image_url) {
-                    this.activeImageUrl = match.main_image_url;
+                if (match && match.main_image_url) {
+                    this.activeImg = match.main_image_url;
                 }
             }
         },
-
-        selectSize(size) {
-            if (!this.isSizeAvailable(size)) return;
-            this.selectedSize = this.selectedSize === size ? null : size;
+        setGallery(url) {
+            this.activeImg = url;
         },
+        appendCartInput(container, variantId, quantity) {
+            const input1 = document.createElement('input');
+            input1.type = 'hidden';
+            input1.name = `items[${variantId}][variant_id]`;
+            input1.value = variantId;
+            container.appendChild(input1);
 
-        isSizeAvailable(size) {
-            const pool = this.selectedColor
-                ? this.variants.filter(v => v.color === this.selectedColor)
-                : this.variants;
-            const variant = pool.find(v => v.size === size);
-            if (!variant) return false;
-            const ok = ['active', 'in stock', 'available', 'instock', 'in_stock'];
-            return !variant.status || ok.includes(String(variant.status).toLowerCase());
+            const input2 = document.createElement('input');
+            input2.type = 'hidden';
+            input2.name = `items[${variantId}][quantity]`;
+            input2.value = quantity;
+            container.appendChild(input2);
         },
+        submitCart() {
+            if (this.totalQty === 0) {
+                return;
+            }
 
-        selectGalleryImage(url) {
-            this.activeImageUrl = url;
-        },
+            const container = document.getElementById('cart-inputs-container');
+            container.innerHTML = '';
+            let added = 0;
 
-        get sortedVariants() {
-            const sorted = [...this.variants];
-            sorted.sort((a, b) => {
-                let av = a[this.sortKey] ?? '';
-                let bv = b[this.sortKey] ?? '';
-                if (this.sortKey === 'msrp') {
-                    av = parseFloat(av) || 0;
-                    bv = parseFloat(bv) || 0;
-                } else {
-                    av = String(av).toLowerCase();
-                    bv = String(bv).toLowerCase();
+            if (!this.hasSizes) {
+                const v = this.selectedVariant || (this.variants.length === 1 ? this.variants[0] : null);
+                if (!v) {
+                    alert('Please select a color first.');
+                    return;
                 }
-                if (av < bv) return this.sortDir === 'asc' ? -1 : 1;
-                if (av > bv) return this.sortDir === 'asc' ? 1 : -1;
-                return 0;
-            });
-            return sorted;
-        },
-
-        toggleSort(key) {
-            if (this.sortKey === key) {
-                this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+                this.appendCartInput(container, v.id, 1);
+                added = 1;
             } else {
-                this.sortKey = key;
-                this.sortDir = 'asc';
-            }
-        },
+                for (const [size, qty] of Object.entries(this.selectedSizes)) {
+                    const q = parseInt(qty) || 0;
+                    if (q <= 0) continue;
 
-        async shareProduct() {
-            const url = window.location.href;
-            const data = { title: this.productName, text: this.productName, url };
-            if (navigator.share) {
-                try { await navigator.share(data); return; } catch (e) {}
+                    const variant = this.variants.find(v =>
+                        v.color === this.selectedColor && v.size === size
+                    );
+                    const fallback = !this.selectedColor
+                        ? this.variants.find(v => v.size === size)
+                        : null;
+                    const v = variant || fallback;
+                    if (!v) continue;
+
+                    this.appendCartInput(container, v.id, q);
+                    added++;
+                }
             }
-            await navigator.clipboard.writeText(url);
-            alert('Link copied to clipboard!');
-        },
-    }));
-});
+
+            if (added === 0) {
+                alert('Please select a color and enter quantities first.');
+                return;
+            }
+
+            document.getElementById('cart-form').submit();
+        }
+    };
+}
 </script>
 @endpush
-@endsection

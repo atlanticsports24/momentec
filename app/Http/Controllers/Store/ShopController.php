@@ -9,17 +9,6 @@ use Illuminate\View\View;
 
 class ShopController extends Controller
 {
-    public function index(): View
-    {
-        $products = Product::query()
-            ->with(['brand', 'variants'])
-            ->orderBy('name')
-            ->limit(48)
-            ->get();
-
-        return view('store.shop', compact('products'));
-    }
-
     public function show(Product $product): View
     {
         $product->load(['brand', 'variants', 'variantDisplayOptions']);

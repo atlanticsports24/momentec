@@ -9,9 +9,9 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen">
 <header class="bg-white border-b border-gray-200">
     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <a href="{{ route('store.shop') }}" class="text-xl font-semibold tracking-tight">Momentec</a>
+        <a href="{{ route('home') }}" class="text-xl font-semibold tracking-tight">Momentec</a>
         <nav class="flex gap-6 text-sm">
-            <a href="{{ route('store.shop') }}" class="hover:text-blue-600">Shop</a>
+            <a href="{{ route('products.index') }}" class="hover:text-blue-600">Shop</a>
             <a href="{{ route('store.cart') }}" class="hover:text-blue-600">Cart</a>
             <a href="{{ url('/admin') }}" class="text-gray-500 hover:text-blue-600">Admin</a>
         </nav>

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Order extends Model
 {
     protected $fillable = [
+        'customer_id',
         'order_number',
         'order_status_id',
         'payment_method_id',
@@ -63,6 +64,11 @@ class Order extends Model
         ];
     }
 
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function status(): BelongsTo
     {
         return $this->belongsTo(OrderStatus::class, 'order_status_id');
@@ -101,5 +107,10 @@ class Order extends Model
     public function shippingCountry(): BelongsTo
     {
         return $this->belongsTo(Country::class, 'shipping_country_id');
+    }
+
+    public function shippingZone(): BelongsTo
+    {
+        return $this->belongsTo(Zone::class, 'shipping_zone_id');
     }
 }

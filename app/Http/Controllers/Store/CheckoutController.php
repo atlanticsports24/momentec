@@ -10,6 +10,7 @@ use App\Services\Store\CartService;
 use App\Services\Store\GeoZoneResolver;
 use App\Services\Store\OrderService;
 use App\Services\Store\StoreSettings;
+use App\Services\Store\TaxService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,7 @@ class CheckoutController extends Controller
         private readonly GeoZoneResolver $geoZones,
         private readonly OrderService $orders,
         private readonly StoreSettings $settings,
+        private readonly TaxService $tax,
     ) {}
 
     public function index(Request $request): View|RedirectResponse
@@ -33,6 +35,7 @@ class CheckoutController extends Controller
         $subtotal = $this->cart->subtotal();
         $countryId = (int) ($request->old('payment_country_id') ?: $this->settings->get('default_country_id'));
         $zoneId = (int) ($request->old('payment_zone_id') ?: $this->settings->get('default_zone_id'));
+        $tax = $this->tax->calculate($subtotal, $zoneId ?: null);
 
         return view('store.checkout', [
             'lines' => $this->cart->lines(),
@@ -43,6 +46,7 @@ class CheckoutController extends Controller
             'shippingMethods' => $this->geoZones->availableShippingMethods($countryId, $zoneId ?: null, $subtotal),
             'defaultCountryId' => $countryId,
             'defaultZoneId' => $zoneId,
+            'tax' => $tax,
         ]);
     }
 
@@ -55,7 +59,7 @@ class CheckoutController extends Controller
                 ->where('country_id', $countryId)
                 ->where('is_enabled', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'code'])
+                ->get(['id', 'name', 'code', 'tax_rate'])
         );
     }
 
@@ -78,6 +82,7 @@ class CheckoutController extends Controller
                 'code' => $m->code,
                 'cost' => $m->calculateCost($subtotal),
             ])->values(),
+            'tax' => $this->tax->toArray($subtotal, $zoneId),
         ]);
     }
 

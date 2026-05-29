@@ -12,12 +12,14 @@ class Zone extends Model
         'name',
         'code',
         'is_enabled',
+        'tax_rate',
     ];
 
     protected function casts(): array
     {
         return [
             'is_enabled' => 'boolean',
+            'tax_rate' => 'decimal:4',
         ];
     }
 

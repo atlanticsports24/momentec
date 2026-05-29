@@ -18,6 +18,7 @@ class OrderService
     public function __construct(
         private readonly StoreSettings $settings,
         private readonly CartService $cart,
+        private readonly TaxService $tax,
     ) {}
 
     public function createFromCheckout(array $data): Order
@@ -30,7 +31,9 @@ class OrderService
             $paymentMethod = PaymentMethod::query()->findOrFail($data['payment_method_id']);
 
             $shippingTotal = $shippingMethod->calculateCost($subtotal);
-            $taxTotal = 0.0;
+            $zoneId = isset($data['payment_zone_id']) ? (int) $data['payment_zone_id'] : null;
+            $taxBreakdown = $this->tax->calculate($subtotal, $zoneId);
+            $taxTotal = $taxBreakdown['amount'];
             $total = $subtotal + $shippingTotal + $taxTotal;
 
             $defaultStatusId = (int) $this->settings->get('default_order_status_id');
@@ -101,7 +104,7 @@ class OrderService
             $this->addTotal($order, 'sub_total', 'Sub-Total', $subtotal, 1);
             $this->addTotal($order, 'shipping', $shippingMethod->name, $shippingTotal, 2);
             if ($taxTotal > 0) {
-                $this->addTotal($order, 'tax', 'Tax', $taxTotal, 3);
+                $this->addTotal($order, 'tax', $taxBreakdown['title'], $taxTotal, 3);
             }
             $this->addTotal($order, 'total', 'Total', $total, 9);
 

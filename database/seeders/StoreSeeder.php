@@ -164,7 +164,28 @@ class StoreSeeder extends Seeder
             'default_zone_id' => $countries['US']['zones']['CA']->id ?? null,
             'default_currency_id' => $currency->id,
             'default_order_status_id' => $statuses['missing']->id,
+            'tax_enabled' => true,
         ]);
+
+        $this->seedSampleTaxRates($countries);
+    }
+
+    private function seedSampleTaxRates(array $countries): void
+    {
+        $samples = [
+            'CA' => 7.25,
+            'NY' => 8.00,
+            'TX' => 6.25,
+            'FL' => 6.00,
+            'ON' => 13.00,
+            'BC' => 12.00,
+        ];
+
+        foreach ($samples as $code => $rate) {
+            Zone::query()
+                ->where('code', $code)
+                ->update(['tax_rate' => $rate]);
+        }
     }
 
     private function seedPaymentMethods(array $statuses): void

@@ -48,7 +48,11 @@ Set `APP_URL=http://127.0.0.1:8000` so product image URLs resolve correctly.
 
 ### Store settings
 
-**Store → Store Settings** — store name/email, default country, zone, currency, and **default order status** for new orders (e.g. Missing).
+**Store → Store Settings** — store name/email, default country, zone, currency, **default order status** for new orders (e.g. Missing), and **enable/disable tax** for checkout.
+
+### Tax (per zone)
+
+**Localisation → Zones** — set **Tax rate (%)** for each state/province. When tax is enabled in Store Settings, checkout applies that rate to the cart **subtotal** (shipping is not taxed). Example: California 7.25% on a $100 subtotal = $7.25 tax.
 
 ### Order statuses
 

@@ -90,6 +90,7 @@ class OrderResource extends Resource
                         Infolists\Components\TextEntry::make('shipping_method_name'),
                         Infolists\Components\TextEntry::make('subtotal')->money('USD'),
                         Infolists\Components\TextEntry::make('shipping_total')->money('USD'),
+                        Infolists\Components\TextEntry::make('tax_total')->money('USD')->placeholder('—'),
                     ]),
                 Infolists\Components\Section::make('Shipping address')
                     ->schema([

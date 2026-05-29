@@ -144,8 +144,19 @@
     <div class="co-grid" id="checkout-root" x-data="{
         shippingCost: {{ $initialShippingCost }},
         subtotal: {{ $subtotal }},
-        get total() { return this.subtotal + this.shippingCost; },
-        selectShipping(cost) { this.shippingCost = parseFloat(cost) || 0; }
+        taxEnabled: {{ $tax['enabled'] ? 'true' : 'false' }},
+        taxRate: {{ $tax['rate'] }},
+        taxAmount: {{ $tax['amount'] }},
+        taxLabel: @js($tax['title']),
+        get total() { return this.subtotal + this.shippingCost + this.taxAmount; },
+        selectShipping(cost) { this.shippingCost = parseFloat(cost) || 0; },
+        applyTax(tax) {
+            if (!tax) return;
+            this.taxEnabled = !!tax.enabled;
+            this.taxRate = parseFloat(tax.rate) || 0;
+            this.taxAmount = parseFloat(tax.amount) || 0;
+            this.taxLabel = tax.title || 'Tax';
+        }
     }">
         <!-- LEFT: Form -->
         <div>
@@ -549,6 +560,14 @@
                         <span x-show="shippingCost > 0" style="font-weight:700;" x-text="'$' + shippingCost.toFixed(2)"></span>
                     </span>
                 </div>
+                <div class="co-sum-row" x-show="taxEnabled && taxAmount > 0" x-cloak>
+                    <span style="color:#6b7280;" x-text="taxLabel"></span>
+                    <span style="font-weight:700;" x-text="'$' + taxAmount.toFixed(2)"></span>
+                </div>
+                <div class="co-sum-row" x-show="taxEnabled && taxAmount === 0" x-cloak>
+                    <span style="color:#6b7280;">Tax</span>
+                    <span style="color:#9ca3af;font-size:12px;">No tax for this zone</span>
+                </div>
                 <div class="co-sum-total">
                     <span>Total</span>
                     <span x-text="'$' + total.toFixed(2)"></span>
@@ -602,6 +621,9 @@ document.getElementById('zone').addEventListener('change', async function() {
             </label>`
         ).join('')
         : '<p style="font-size:13px;color:#ef4444;">No shipping methods available.</p>';
+    if (data.tax) {
+        getCheckoutAlpine()?.applyTax(data.tax);
+    }
     initShippingMethodsAfterUpdate();
 });
 </script>

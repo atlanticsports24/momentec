@@ -41,6 +41,7 @@ class StoreSettingsPage extends Page implements HasForms
             'default_zone_id' => $settings->get('default_zone_id'),
             'default_currency_id' => $settings->get('default_currency_id'),
             'default_order_status_id' => $settings->get('default_order_status_id'),
+            'tax_enabled' => (bool) $settings->get('tax_enabled', false),
         ]);
     }
 
@@ -85,6 +86,13 @@ class StoreSettingsPage extends Page implements HasForms
                             ->options(fn () => OrderStatus::query()->orderBy('sort_order')->pluck('name', 'id'))
                             ->required()
                             ->helperText('Status assigned when a customer places an order (e.g. Missing, Pending).'),
+                    ]),
+                Forms\Components\Section::make('Tax')
+                    ->description('When enabled, checkout calculates tax from the zone tax rate set under Localisation → Zones.')
+                    ->schema([
+                        Forms\Components\Toggle::make('tax_enabled')
+                            ->label('Enable tax')
+                            ->helperText('Turn off to charge no tax at checkout regardless of zone rates.'),
                     ]),
             ])
             ->statePath('data');

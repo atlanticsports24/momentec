@@ -38,6 +38,15 @@ class ZoneResource extends Resource
                     ->maxLength(32),
                 Forms\Components\Toggle::make('is_enabled')
                     ->required(),
+                Forms\Components\TextInput::make('tax_rate')
+                    ->label('Tax rate (%)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(100)
+                    ->step(0.0001)
+                    ->default(0)
+                    ->suffix('%')
+                    ->helperText('Percentage applied to order subtotal at checkout when tax is enabled in Store Settings.'),
             ]);
     }
 
@@ -54,6 +63,11 @@ class ZoneResource extends Resource
                     ->searchable(),
                 Tables\Columns\IconColumn::make('is_enabled')
                     ->boolean(),
+                Tables\Columns\TextColumn::make('tax_rate')
+                    ->label('Tax %')
+                    ->numeric(decimalPlaces: 2)
+                    ->suffix('%')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

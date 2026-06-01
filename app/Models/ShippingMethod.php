@@ -38,6 +38,11 @@ class ShippingMethod extends Model
         return $this->belongsTo(GeoZone::class);
     }
 
+    public function configValue(string $key, mixed $default = null): mixed
+    {
+        return data_get($this->config ?? [], $key, $default);
+    }
+
     public function calculateCost(float $subtotal): float
     {
         if ($this->free_shipping_min !== null && $subtotal >= (float) $this->free_shipping_min) {

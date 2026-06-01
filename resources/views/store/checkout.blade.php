@@ -133,23 +133,28 @@
     </div>
     @if($errors->any())
     <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#dc2626;">
-        <ul style="margin:0;padding:0 0 0 16px;">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+        <ul style="margin:0;padding:0 0 0 16px;">
+            @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+        </ul>
     </div>
     @endif
     @php
-        $selectedShippingId = old('shipping_method_id', $shippingMethods->first()?->id);
-        $selectedShipping = $shippingMethods->firstWhere('id', $selectedShippingId);
-        $initialShippingCost = $selectedShipping ? $selectedShipping->calculateCost($subtotal) : 0;
+        $selectedShippingKey = old('shipping_option', $shippingQuotes->first()['key'] ?? '');
+        $selectedQuote = $shippingQuotes->firstWhere('key', $selectedShippingKey) ?? $shippingQuotes->first();
+        $initialShippingCost = (float) ($selectedQuote['cost'] ?? 0);
+        $selectedPayment = $paymentMethods->firstWhere('id', old('payment_method_id')) ?? $paymentMethods->first();
     @endphp
     <div class="co-grid" id="checkout-root" x-data="{
         shippingCost: {{ $initialShippingCost }},
         subtotal: {{ $subtotal }},
+        paymentCode: @js($selectedPayment?->code ?? ''),
         taxEnabled: {{ $tax['enabled'] ? 'true' : 'false' }},
         taxRate: {{ $tax['rate'] }},
         taxAmount: {{ $tax['amount'] }},
         taxLabel: @js($tax['title']),
         get total() { return this.subtotal + this.shippingCost + this.taxAmount; },
         selectShipping(cost) { this.shippingCost = parseFloat(cost) || 0; },
+        applyPaymentCode(code) { this.paymentCode = code || ''; },
         applyTax(tax) {
             if (!tax) return;
             this.taxEnabled = !!tax.enabled;
@@ -473,43 +478,29 @@
                     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin-bottom:8px;">Payment Method</div>
                     <div id="payment-methods">
                         @forelse($paymentMethods as $m)
-                        <label class="co-option"><div style="display:flex;align-items:center;"><input type="radio" name="payment_method_id" value="{{ $m->id }}" @checked(old('payment_method_id')==$m->id) required><span class="co-option-label">{{ $m->name }}</span></div></label>
-                        @empty<p style="font-size:13px;color:#ef4444;">No payment methods available.</p>@endforelse
-                    </div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin:16px 0 8px;">Shipping Method</div>
-                    <div id="shipping-methods">
-                        @forelse($shippingMethods as $m)
-                        @php $shipCost = $m->calculateCost($subtotal); @endphp
-                        <label class="co-option"
-                               @click="selectShipping({{ $shipCost }})">
+                        <label class="co-option">
                             <div style="display:flex;align-items:center;">
-                                <input type="radio" name="shipping_method_id" value="{{ $m->id }}"
-                                       @checked($selectedShippingId == $m->id)
-                                       @change="selectShipping({{ $shipCost }})"
-                                       required>
+                                <input type="radio" name="payment_method_id" value="{{ $m->id }}" data-code="{{ $m->code }}"
+                                    @checked(old('payment_method_id', $selectedPayment?->id) == $m->id)
+                                    @change="applyPaymentCode($event.target.dataset.code)"
+                                    required>
                                 <span class="co-option-label">{{ $m->name }}</span>
                             </div>
-                            <span class="co-option-price">${{ number_format($shipCost, 2) }}</span>
                         </label>
-                        @empty
-                        <p style="font-size:13px;color:#ef4444;">No shipping methods available.</p>
-                        @endforelse
+                        @empty<p style="font-size:13px;color:#ef4444;">No payment methods available.</p>@endforelse
                     </div>
-                    @if($shippingMethods->count() > 0)
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const firstShipping = document.querySelector('#shipping-methods input[name="shipping_method_id"]');
-                        if (firstShipping) {
-                            firstShipping.checked = true;
-                            const cost = parseFloat(firstShipping.closest('label').querySelector('.co-option-price').textContent.replace(/[^0-9.]/g, '')) || 0;
-                            const alpineEl = document.getElementById('checkout-root');
-                            if (alpineEl && alpineEl._x_dataStack) {
-                                alpineEl._x_dataStack[0].selectShipping(cost);
-                            }
+                    @include('store.partials.authorize-net-card')
+                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;margin:16px 0 8px;">Shipping Method</div>
+                    @php
+                        $hasAddressForQuotes = filled(old('payment_city')) && filled(old('payment_postcode'));
+                        if (! $hasAddressForQuotes && isset($authCustomer)) {
+                            $hasAddressForQuotes = filled($authCustomer?->defaultAddress?->city) && filled($authCustomer?->defaultAddress?->postcode);
                         }
-                    });
-                    </script>
-                    @endif
+                    @endphp
+                    <p id="shipping-ups-hint" style="font-size:12px;color:#9ca3af;margin:0 0 8px;{{ $hasAddressForQuotes ? 'display:none;' : '' }}">Enter city and postcode to load UPS / USPS live rates.</p>
+                    <div id="shipping-methods">
+                        @include('store.partials.checkout-shipping-options', ['shippingQuotes' => $shippingQuotes, 'selectedShippingKey' => $selectedShippingKey])
+                    </div>
                 </div>
                 <!-- Order note — collapsible -->
                 <div x-data="{ open: false }" style="margin-bottom:16px;">
@@ -582,20 +573,101 @@ function getCheckoutAlpine() {
     return root?._x_dataStack?.[0];
 }
 
+function bindPaymentMethodRadios() {
+    document.querySelectorAll('#payment-methods input[name=payment_method_id]').forEach(radio => {
+        radio.addEventListener('change', () => getCheckoutAlpine()?.applyPaymentCode(radio.dataset.code));
+    });
+    const checked = document.querySelector('#payment-methods input[name=payment_method_id]:checked');
+    if (checked) {
+        getCheckoutAlpine()?.applyPaymentCode(checked.dataset.code);
+    }
+}
+
+function renderShippingOptionsHtml(shipping) {
+    if (!shipping.length) {
+        return '<p style="font-size:13px;color:#ef4444;">No shipping methods available.</p>';
+    }
+    let html = '';
+    let selectable = 0;
+    shipping.forEach(q => {
+        if (q.error) {
+            const label = q.name ? `${q.name}: ` : '';
+            html += `<p style="font-size:13px;color:#ef4444;margin-bottom:8px;">${label}${q.error}</p>`;
+            return;
+        }
+        selectable++;
+        const cost = Number(q.cost) || 0;
+        const checked = selectable === 1 ? 'checked' : '';
+        html += `<label class="co-option" onclick="getCheckoutAlpine()?.selectShipping(${cost})">
+            <div style="display:flex;align-items:center;">
+                <input type="radio" name="shipping_option" value="${q.key}" data-cost="${cost}" ${checked} required onchange="getCheckoutAlpine()?.selectShipping(${cost})">
+                <span class="co-option-label">${q.name}</span>
+            </div>
+            <span class="co-option-price">$${cost.toFixed(2)}</span>
+        </label>`;
+    });
+    return selectable ? html : (html || '<p style="font-size:13px;color:#ef4444;">No shipping methods available.</p>');
+}
+
 function initShippingMethodsAfterUpdate() {
     const ship = document.getElementById('shipping-methods');
     if (typeof Alpine !== 'undefined') {
         Alpine.initTree(ship);
     }
-    const firstShipping = ship.querySelector('input[name="shipping_method_id"]');
+    const firstShipping = ship.querySelector('input[name="shipping_option"]');
     if (firstShipping) {
         firstShipping.checked = true;
-        const cost = parseFloat(firstShipping.closest('label').querySelector('.co-option-price').textContent.replace(/[^0-9.]/g, '')) || 0;
+        const cost = parseFloat(firstShipping.dataset.cost || firstShipping.closest('label').querySelector('.co-option-price')?.textContent.replace(/[^0-9.]/g, '') || '0') || 0;
         getCheckoutAlpine()?.selectShipping(cost);
     } else {
         getCheckoutAlpine()?.selectShipping(0);
     }
 }
+
+async function refreshCheckoutMethods() {
+    const cId = document.getElementById('country').value;
+    const zId = document.getElementById('zone').value;
+    const city = document.querySelector('[name="payment_city"]')?.value || '';
+    const postcode = document.querySelector('[name="payment_postcode"]')?.value || '';
+    const params = new URLSearchParams({ country_id: cId, zone_id: zId, city, postcode });
+    const res = await fetch(`{{ route('store.checkout.methods') }}?${params.toString()}`);
+    const data = await res.json();
+    document.getElementById('payment-methods').innerHTML = data.payment.length
+        ? data.payment.map(m=>`<label class="co-option"><div style="display:flex;align-items:center;"><input type="radio" name="payment_method_id" value="${m.id}" data-code="${m.code}" required><span class="co-option-label">${m.name}</span></div></label>`).join('')
+        : '<p style="font-size:13px;color:#ef4444;">No payment methods available.</p>';
+    bindPaymentMethodRadios();
+    document.getElementById('shipping-methods').innerHTML = renderShippingOptionsHtml(data.shipping);
+    const hint = document.getElementById('shipping-ups-hint');
+    if (hint) {
+        hint.style.display = addressReadyForQuotes() ? 'none' : 'block';
+    }
+    if (data.tax) {
+        getCheckoutAlpine()?.applyTax(data.tax);
+    }
+    initShippingMethodsAfterUpdate();
+}
+
+function addressReadyForQuotes() {
+    const city = document.querySelector('[name="payment_city"]')?.value?.trim() || '';
+    const postcode = document.querySelector('[name="payment_postcode"]')?.value?.trim() || '';
+    const zone = document.getElementById('zone')?.value || '';
+    return !!(city && postcode && zone);
+}
+
+let checkoutMethodsTimer = null;
+function scheduleRefreshCheckoutMethods() {
+    clearTimeout(checkoutMethodsTimer);
+    checkoutMethodsTimer = setTimeout(refreshCheckoutMethods, 400);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    bindPaymentMethodRadios();
+    if (addressReadyForQuotes()) {
+        refreshCheckoutMethods();
+    } else {
+        initShippingMethodsAfterUpdate();
+    }
+});
 
 document.getElementById('country').addEventListener('change', async function() {
     const res = await fetch('{{ route('store.checkout.zones') }}?country_id=' + this.value);
@@ -603,28 +675,11 @@ document.getElementById('country').addEventListener('change', async function() {
     document.getElementById('zone').innerHTML = zones.map(z => `<option value="${z.id}">${z.name}</option>`).join('');
     document.getElementById('zone').dispatchEvent(new Event('change'));
 });
-document.getElementById('zone').addEventListener('change', async function() {
-    const cId = document.getElementById('country').value;
-    const res = await fetch(`{{ route('store.checkout.methods') }}?country_id=${cId}&zone_id=${this.value}`);
-    const data = await res.json();
-    document.getElementById('payment-methods').innerHTML = data.payment.length
-        ? data.payment.map(m=>`<label class="co-option"><div style="display:flex;align-items:center;"><input type="radio" name="payment_method_id" value="${m.id}" required><span class="co-option-label">${m.name}</span></div></label>`).join('')
-        : '<p style="font-size:13px;color:#ef4444;">No payment methods available.</p>';
-    document.getElementById('shipping-methods').innerHTML = data.shipping.length
-        ? data.shipping.map(m =>
-            `<label class="co-option" @click="selectShipping(${m.cost})">
-                <div style="display:flex;align-items:center;">
-                    <input type="radio" name="shipping_method_id" value="${m.id}" required>
-                    <span class="co-option-label">${m.name}</span>
-                </div>
-                <span class="co-option-price">$${Number(m.cost).toFixed(2)}</span>
-            </label>`
-        ).join('')
-        : '<p style="font-size:13px;color:#ef4444;">No shipping methods available.</p>';
-    if (data.tax) {
-        getCheckoutAlpine()?.applyTax(data.tax);
-    }
-    initShippingMethodsAfterUpdate();
+document.getElementById('zone').addEventListener('change', refreshCheckoutMethods);
+['payment_city', 'payment_postcode'].forEach(name => {
+    const el = document.querySelector(`[name="${name}"]`);
+    el?.addEventListener('input', scheduleRefreshCheckoutMethods);
+    el?.addEventListener('blur', refreshCheckoutMethods);
 });
 </script>
 @endsection

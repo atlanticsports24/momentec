@@ -62,8 +62,17 @@ CRUD for statuses (Missing, Pending, Processing, Shipped, Complete, Canceled, et
 
 | Type | Codes (seeded) |
 |------|----------------|
-| Payment | `cod` (enabled), `stripe`, `authorize_net`, `paypal` (disabled; configure in admin) |
-| Shipping | `flat`, `free` (enabled), `ups`, `usps` (disabled) |
+| Payment | `cod` (enabled), `stripe`, `authorize_net` (AIM card form + gateway), `paypal` (disabled; configure in admin) |
+
+**Authorize.Net (AIM)** — Admin → Extensions → Payment Methods → Authorize.Net: Login ID, Transaction Key, MD5 Hash (optional), Transaction Server (Live/Test), Transaction Mode, Transaction Method (Authorization vs Payment), Order Status, Geo Zone, Status. Checkout shows card fields when this method is selected and charges via `transact.dll` like OpenCart.
+| Shipping | `flat`, `free` (enabled), `ups` + `usps` carrier modules (live API quotes) |
+
+**Carrier modules** (OpenCart-style defaults under `app/Services/Store/Carriers/`):
+
+- **UPS** — OAuth + Rating API (`UpsCarrier` / `UpsShippingService`). Full admin form: credentials, origin, pickup, packaging, services, surcharges.
+- **USPS** — RateV4 XML API (`UspsCarrier` / `UspsShippingService`). Admin: User ID, origin zip, container, dimensions, enabled services.
+
+Checkout loads **UPS and USPS** live rates when city + postcode are entered (enable each method under Extensions → Shipping Methods).
 
 Each payment method has **success order status** (applied after successful payment). COD marks the order paid immediately and moves to Processing.
 

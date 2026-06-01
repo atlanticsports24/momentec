@@ -89,4 +89,36 @@ class CartService
     {
         return (float) $this->lines()->sum('total');
     }
+
+    public function lineCount(): int
+    {
+        return $this->lines()->count();
+    }
+
+    public function totalWeight(): float
+    {
+        $weight = 0.0;
+
+        foreach ($this->lines() as $line) {
+            $variant = $line['variant'];
+            $unit = strtolower((string) ($variant->weight_unit ?? 'lb'));
+            $w = (float) ($variant->weight ?? 0);
+
+            if ($unit === 'kg' || $unit === 'kgs') {
+                $w *= 2.20462;
+            } elseif ($unit === 'g' || $unit === 'gram' || $unit === 'grams') {
+                $w *= 0.00220462;
+            } elseif ($unit === 'oz' || $unit === 'ounce' || $unit === 'ounces') {
+                $w /= 16;
+            }
+
+            $weight += max(0, $w) * $line['quantity'];
+        }
+
+        if ($weight <= 0) {
+            return 1.0;
+        }
+
+        return $weight;
+    }
 }

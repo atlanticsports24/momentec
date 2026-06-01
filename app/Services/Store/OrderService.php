@@ -21,16 +21,21 @@ class OrderService
         private readonly TaxService $tax,
     ) {}
 
-    public function createFromCheckout(array $data): Order
+    public function createFromCheckout(array $data, bool $clearCart = true): Order
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $clearCart) {
             $lines = $this->cart->lines();
             $subtotal = $this->cart->subtotal();
 
             $shippingMethod = ShippingMethod::query()->findOrFail($data['shipping_method_id']);
             $paymentMethod = PaymentMethod::query()->findOrFail($data['payment_method_id']);
 
-            $shippingTotal = $shippingMethod->calculateCost($subtotal);
+            $shippingTotal = isset($data['shipping_cost'])
+                ? (float) $data['shipping_cost']
+                : $shippingMethod->calculateCost($subtotal);
+
+            $shippingMethodName = $data['shipping_method_name'] ?? $shippingMethod->name;
+            $shippingMethodCode = $data['shipping_method_code'] ?? $shippingMethod->code;
             $zoneId = isset($data['payment_zone_id']) ? (int) $data['payment_zone_id'] : null;
             $taxBreakdown = $this->tax->calculate($subtotal, $zoneId);
             $taxTotal = $taxBreakdown['amount'];
@@ -73,8 +78,8 @@ class OrderService
                 'shipping_zone_id' => $data['shipping_zone_id'] ?? $data['payment_zone_id'] ?? null,
                 'payment_method_code' => $paymentMethod->code,
                 'payment_method_name' => $paymentMethod->name,
-                'shipping_method_code' => $shippingMethod->code,
-                'shipping_method_name' => $shippingMethod->name,
+                'shipping_method_code' => $shippingMethodCode,
+                'shipping_method_name' => $shippingMethodName,
                 'comment' => $data['comment'] ?? null,
                 'subtotal' => $subtotal,
                 'shipping_total' => $shippingTotal,
@@ -114,13 +119,15 @@ class OrderService
                 $this->markPaymentSuccess($order, $paymentMethod);
             }
 
-            $this->cart->clear();
+            if ($clearCart) {
+                $this->cart->clear();
+            }
 
-            return $order->fresh(['products', 'totals', 'status']);
+            return $order->fresh(['products', 'totals', 'status', 'paymentMethod']);
         });
     }
 
-    public function markPaymentSuccess(Order $order, ?PaymentMethod $paymentMethod = null): void
+    public function markPaymentSuccess(Order $order, ?PaymentMethod $paymentMethod = null, ?string $comment = null): void
     {
         $paymentMethod ??= $order->paymentMethod;
 
@@ -136,7 +143,23 @@ class OrderService
             'paid_at' => now(),
         ]);
 
-        $this->recordHistory($order, (int) $successStatusId, 'Payment successful');
+        $this->recordHistory($order, (int) $successStatusId, $comment ?? 'Payment successful');
+    }
+
+    public function markPaymentFailed(Order $order, ?PaymentMethod $paymentMethod = null, ?string $comment = null): void
+    {
+        $paymentMethod ??= $order->paymentMethod;
+
+        $failedStatusId = $paymentMethod?->failed_order_status_id
+            ?? $this->settings->get('default_order_status_id');
+
+        if (! $failedStatusId) {
+            return;
+        }
+
+        $order->update(['order_status_id' => $failedStatusId]);
+
+        $this->recordHistory($order, (int) $failedStatusId, $comment ?? 'Payment failed');
     }
 
     public function updateStatus(Order $order, int $statusId, ?string $comment = null, bool $notify = false, ?int $userId = null): void

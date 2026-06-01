@@ -104,6 +104,11 @@ class Order extends Model
         return $this->belongsTo(Country::class, 'payment_country_id');
     }
 
+    public function paymentZone(): BelongsTo
+    {
+        return $this->belongsTo(Zone::class, 'payment_zone_id');
+    }
+
     public function shippingCountry(): BelongsTo
     {
         return $this->belongsTo(Country::class, 'shipping_country_id');
